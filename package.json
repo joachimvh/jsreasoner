@@ -1,0 +1,8 @@
+{
+  "name": "jsreasoner",
+  "version": "0.0.1",
+  "description": "",
+  "dependencies": {
+    "lodash": "^4.15.0"
+  }
+}
