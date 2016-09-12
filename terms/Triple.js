@@ -40,6 +40,11 @@ class Triple extends Term
                 && this.predicate.solve(map, forward, other.predicate)
                 && this.object.solve(map, forward, other.object);
     }
+
+    toString ()
+    {
+        return this.subject + ' ' + this.predicate + ' ' + this.object + '.';
+    }
 }
 
 module.exports = Triple;

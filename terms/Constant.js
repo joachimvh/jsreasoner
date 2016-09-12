@@ -32,6 +32,11 @@ class Constant extends Term
         
         return this.equals(other);
     }
+
+    toString ()
+    {
+        return '<' + this.value + '>';
+    }
 }
 
 module.exports = Constant;

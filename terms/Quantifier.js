@@ -35,4 +35,9 @@ class Quantifier extends Term
     {
         throw new Error("Should be in SNF.");
     }
+
+    toString ()
+    {
+        return (this.forAll ? '@forAll ' : '@forSome ') + this.param + '. ' + this.formula;
+    }
 }

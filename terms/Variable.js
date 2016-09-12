@@ -51,6 +51,11 @@ class Variable extends Term
         map.set(this.name, other);
         return true;
     }
+
+    toString ()
+    {
+        return '?' + this.name;
+    }
 }
 
 module.exports = Variable;

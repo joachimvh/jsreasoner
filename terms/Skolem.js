@@ -45,4 +45,9 @@ class Skolem extends Term
         
         return this.equals(other);
     }
+
+    toString ()
+    {
+        return this.name + '(' + this.dependencies.join(', ') + ')';
+    }
 }

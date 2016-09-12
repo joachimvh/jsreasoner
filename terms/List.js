@@ -50,6 +50,11 @@ class List extends Term
         
         return true;
     }
+
+    toString ()
+    {
+        return '( ' + this.list.join(' ') + ' )';
+    }
 }
 
 module.exports = List;

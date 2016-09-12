@@ -36,6 +36,11 @@ class Implication extends Term
         
         return this.premise.solve(map, forward, other.premise) && this.conclusion.solve(map, forward, other.conclusion);
     }
+
+    toString ()
+    {
+        return this.premise + ' => ' + this.conclusion + '.';
+    }
 }
 
 module.exports = Implication;

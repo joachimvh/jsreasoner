@@ -14,6 +14,11 @@ class Formula extends List
     {
         return new Formula(this.list.map(e => e.toSNF(status)));
     }
+
+    toString ()
+    {
+        return '{ ' + this.list.join(' ') + ' }';
+    }
 }
 
 module.exports = Formula;
