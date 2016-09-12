@@ -12,7 +12,7 @@ class Reasoner
             var head = Reasoner.step(knowledge).next().value;
             if (!head)
                 return knowledge;
-            knowledge.push(head.data);
+            knowledge.push(...head.data);
         }
     }
     
@@ -23,9 +23,9 @@ class Reasoner
         {
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
             {
-                let data = rule.conclusion.applyMapping(map);
-                if (knowledge.filter(k => k.equals(data)).length === 0) // TODO: `find` not working yet?
-                    yield { data: data, evidence: [rule, ...evidence] };
+                let data = rule.conclusion.applyMapping(map); // let's just assume the conclusion is a formula for now
+                if (data.list.some(d => knowledge.filter(k => k.equals(d)).length === 0)) // TODO: `find` not working yet?
+                    yield { data: data.list, evidence: [rule, ...evidence] };
             }
         }
     }
