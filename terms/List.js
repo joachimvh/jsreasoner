@@ -11,7 +11,7 @@ class List extends Term
     
     equals (other)
     {
-        if (!other instanceof List)
+        if (!(other instanceof List))
             return false;
         if (this.list.length !== other.list.length)
             return false;
@@ -39,7 +39,7 @@ class List extends Term
         if (right !== undefined)
             return right;
         
-        if (!other instanceof List)
+        if (!(other instanceof List))
             return false;
         if (this.list.length !== other.list.length)
             return false;

@@ -9,7 +9,7 @@ class Skolem extends Term
     
     equals (other)
     {
-        if (! other instanceof Skolem)
+        if (!(other instanceof Skolem))
             return false;
         if (this.name !== other.name)
             return false;

@@ -31,7 +31,7 @@ class Implication extends Term
         if (right !== undefined)
             return right;
         
-        if (!other instanceof Implication)
+        if (!(other instanceof Implication))
             return false;
         
         return this.premise.solve(map, forward, other.premise) && this.conclusion.solve(map, forward, other.conclusion);
