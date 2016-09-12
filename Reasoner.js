@@ -7,25 +7,26 @@ class Reasoner
 {
     static reason (knowledge)
     {
+        knowledge = knowledge.map(k => { return { data: k, evidence: []} });
         while (true)
         {
             let head = Reasoner.step(knowledge).next().value;
             if (!head)
                 return knowledge;
-            knowledge.push(...head.data);
+            knowledge.push(...head);
         }
     }
     
     static *step (knowledge)
     {
-        let rules = knowledge.filter(k => k instanceof Implication);
+        let rules = knowledge.filter(({data, evidence}) => data instanceof Implication).map(({data, evidence}) => data);
         for (let rule of rules)
         {
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
             {
                 let data = rule.conclusion.applyMapping(map); // let's just assume the conclusion is a formula for now
-                if (data.list.some(d => knowledge.filter(k => k.equals(d)).length === 0)) // TODO: `find` not working yet?
-                    yield { data: data.list, evidence: [rule, ...evidence] };
+                if (data.list.some(d => knowledge.filter(({data, evidence}) => data.equals(d)).length === 0)) // TODO: `find` not working yet?
+                    yield data.list.map(d => { return { data: d, evidence: [rule, ...evidence] }});
             }
         }
     }
@@ -48,7 +49,7 @@ class Reasoner
                 let [head, ...tail] = premise.list;
                 for (let {map: headMap, evidence: headEvidence} of Reasoner.solvePremise(head, knowledge, map))
                 {
-                    let tailGen = Reasoner.solvePremise(new Formula(tail), function*() {for (let k of knowledge) yield k.applyMapping(headMap)}(), headMap);
+                    let tailGen = Reasoner.solvePremise(new Formula(tail), function*() {for (let {data, evidence} of knowledge) yield {data: data.applyMapping(headMap), evidence: evidence}}(), headMap);
                     for (let {map: tailMap, evidence: tailEvidence} of tailGen)
                         yield {map: new Map(function*() { yield* headMap; yield* tailMap; }()), evidence: [...headEvidence, ...tailEvidence]};
                 }
@@ -56,11 +57,11 @@ class Reasoner
         }
         else
         {
-            for (let know of knowledge)
+            for (let {data, evidence} of knowledge)
             {
                 let newMap = new Map(map);
-                if (premise.solve(newMap, true, know))
-                    yield { map: newMap, evidence: [know] };
+                if (premise.solve(newMap, true, data))
+                    yield { map: newMap, evidence: [data] };
             }
         }
     }

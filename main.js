@@ -26,4 +26,4 @@ rule.premise.list[0].solve(m, true, triple);
 // console.log(gen.next().value);
 // console.log(gen.next().value);
 
-console.log(Reasoner.reason([rule2, triple, triple2]).join('\n'));
+console.log(Reasoner.reason([rule2, triple, triple2]).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
