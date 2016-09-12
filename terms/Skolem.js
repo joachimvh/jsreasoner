@@ -3,6 +3,9 @@ class Skolem extends Term
 {
     constructor (name, dependencies)
     {
+        super();
+        if (!(dependencies instanceof Set))
+            throw new Error("Dependencies should be a Set.");
         this.name = name;
         this.dependencies = dependencies;
     }

@@ -1,11 +1,14 @@
 
 let Term = require('./Term');
+let _ = require('lodash');
 
 class List extends Term
 {
     constructor (list)
     {
         super();
+        if (!_.isArray(list))
+            throw new Error("Input should be an array.");
         this.list = list;
     }
     

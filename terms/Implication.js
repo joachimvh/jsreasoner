@@ -1,11 +1,14 @@
 
 let Term = require('./Term');
+let Formula = require('./Formula');
 
 class Implication extends Term
 {
     constructor (premise, conclusion)
     {
         super();
+        if (!(premise instanceof Formula) || !(conclusion instanceof Formula))
+            throw new Error("Both premise and conclusion should be formulas.");
         this.premise = premise;
         this.conclusion = conclusion;
     }
