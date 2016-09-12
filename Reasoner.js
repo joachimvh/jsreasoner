@@ -24,7 +24,7 @@ class Reasoner
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
             {
                 let data = rule.conclusion.applyMapping(map);
-                if (knowledge.filter(k => k.equals(data)).length === 0) // TODO: find not working yet?
+                if (knowledge.filter(k => k.equals(data)).length === 0) // TODO: `find` not working yet?
                     yield { data: data, evidence: [rule, ...evidence] };
             }
         }
@@ -48,7 +48,7 @@ class Reasoner
                 let [head, ...tail] = premise.list;
                 for (let {map: headMap, evidence: headEvidence} of Reasoner.solvePremise(head, knowledge, map))
                 {
-                    let tailGen = Reasoner.solvePremise(new Formula(tail), knowledge.map(k => k.applyMapping(headMap)), headMap);
+                    let tailGen = Reasoner.solvePremise(new Formula(tail), function*() {for (let k of knowledge) yield k.applyMapping(headMap)}(), headMap);
                     for (let {map: tailMap, evidence: tailEvidence} of tailGen)
                         yield {map: new Map(function*() { yield* headMap; yield* tailMap; }()), evidence: [...headEvidence, ...tailEvidence]};
                 }
