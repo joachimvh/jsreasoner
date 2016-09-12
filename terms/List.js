@@ -1,5 +1,5 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
 
 class List extends Term
 {

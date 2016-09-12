@@ -1,5 +1,5 @@
 
-var List = require("./List");
+let List = require("./List");
 
 class Formula extends List
 {

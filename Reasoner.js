@@ -1,7 +1,7 @@
 
-var Constant = require("./terms/Constant");
-var Implication = require("./terms/Implication");
-var Formula = require("./terms/Formula");
+let Constant = require("./terms/Constant");
+let Implication = require("./terms/Implication");
+let Formula = require("./terms/Formula");
 
 class Reasoner
 {
@@ -9,7 +9,7 @@ class Reasoner
     {
         while (true)
         {
-            var head = Reasoner.step(knowledge).next().value;
+            let head = Reasoner.step(knowledge).next().value;
             if (!head)
                 return knowledge;
             knowledge.push(...head.data);
@@ -18,7 +18,7 @@ class Reasoner
     
     static *step (knowledge)
     {
-        var rules = knowledge.filter(k => k instanceof Implication);
+        let rules = knowledge.filter(k => k instanceof Implication);
         for (let rule of rules)
         {
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
@@ -39,7 +39,7 @@ class Reasoner
         }
         else if (premise instanceof Formula)
         {
-            if (premise.list.length === 0)
+            if (premise.list.lletength === 0)
                 yield {map: map, evidence: []};
             else if (premise.list.length === 1)
                 yield* Reasoner.solvePremise(premise.list[0], knowledge, map);

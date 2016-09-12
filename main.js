@@ -1,10 +1,10 @@
 
-var Constant = require("./terms/Constant");
-var Variable = require("./terms/Variable");
-var Implication = require("./terms/Implication");
-var Triple = require("./terms/Triple");
-var Formula = require("./terms/Formula");
-var Reasoner = require("./Reasoner");
+let Constant = require("./terms/Constant");
+let Variable = require("./terms/Variable");
+let Implication = require("./terms/Implication");
+let Triple = require("./terms/Triple");
+let Formula = require("./terms/Formula");
+let Reasoner = require("./Reasoner");
 
 let rule = new Implication(new Formula([new Triple(new Variable("x"), new Constant("b"), new Constant("c"))]),
                            new Formula([new Triple(new Variable("x"), new Variable("x"), new Variable("x"))]));
