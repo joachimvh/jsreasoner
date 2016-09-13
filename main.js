@@ -4,7 +4,7 @@ let Variable = require("./terms/Variable");
 let Implication = require("./terms/Implication");
 let Triple = require("./terms/Triple");
 let Formula = require("./terms/Formula");
-let Reasoner = require("./Reasoner");
+let ForwardReasoner = require("./ForwardReasoner");
 
 let rule = new Implication(new Formula([new Triple(new Variable("x"), new Constant("b"), new Constant("c"))]),
                            new Formula([new Triple(new Variable("x"), new Variable("x"), new Variable("x"))]));
@@ -26,4 +26,4 @@ rule.premise.list[0].solve(m, true, triple);
 // console.log(gen.next().value);
 // console.log(gen.next().value);
 
-console.log(Reasoner.reason([rule2, triple, triple2]).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
+console.log(ForwardReasoner.reason([rule2, triple, triple2]).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
