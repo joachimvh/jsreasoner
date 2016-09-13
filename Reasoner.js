@@ -24,8 +24,9 @@ class Reasoner
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
             {
                 let data = rule.conclusion.applyMapping(map);
+                let newEvidence = [rule, ...evidence];
                 if (knowledge.filter(k => k.equals(data)).length === 0) // TODO: find not working yet?
-                    yield { data: data, evidence: [rule, ...evidence] };
+                    yield { data: data, evidence: newEvidence };
             }
         }
     }
