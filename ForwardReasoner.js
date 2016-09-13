@@ -41,7 +41,7 @@ class Reasoner
         }
         else if (premise instanceof Formula)
         {
-            if (premise.list.lletength === 0)
+            if (premise.list.length === 0)
                 yield {map: map, evidence: []};
             else if (premise.list.length === 1)
                 yield* Reasoner.solvePremise(premise.list[0], knowledge, map);
