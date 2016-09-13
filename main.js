@@ -1,7 +1,7 @@
 
 let T = require('./terms/Terms');
-let ForwardReasoner = require("./ForwardReasoner");
-let BackwardReasoner = require("./BackwardReasoner");
+let ForwardReasoner = require("./reasoning/ForwardReasoner");
+let BackwardReasoner = require("./reasoning/BackwardReasoner");
 
 let rule = new T.Implication(new T.Formula([new T.Triple(new T.Variable("x"), new T.Constant("b"), new T.Constant("c"))]),
                              new T.Formula([new T.Triple(new T.Variable("x"), new T.Variable("x"), new T.Variable("x"))]));

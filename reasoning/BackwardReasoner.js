@@ -1,5 +1,5 @@
 
-let T = require('./terms/Terms');
+let T = require('./../terms/Terms');
 
 class BackwardReasoner
 {
