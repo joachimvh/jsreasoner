@@ -43,7 +43,7 @@ class Variable extends Term
         
         // backward
         if (map.has(this.name))
-            return this.equals(map.get(this.name));
+            return other.equals(map.get(this.name));
         map.set(this.name, other);
         return true;
     }
