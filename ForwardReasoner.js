@@ -26,7 +26,7 @@ class Reasoner
             {
                 let data = rule.conclusion.applyMapping(map); // let's just assume the conclusion is a formula for now
                 let newEvidence = [rule, ...evidence];
-                if (data.list.some(d => knowledge.filter(({data, evidence}) => data.equals(d)).length === 0)) // TODO: `find` not working yet?
+                if (data.list.some(d => knowledge.find(({data, evidence}) => data.equals(d)) === undefined))
                     yield data.list.map(d => { return { data: d, evidence: newEvidence }});
             }
         }
