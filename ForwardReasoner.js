@@ -1,7 +1,5 @@
 
-let Constant = require("./terms/Constant");
-let Implication = require("./terms/Implication");
-let Formula = require("./terms/Formula");
+let T = require('./terms/Terms');
 
 class Reasoner
 {
@@ -19,7 +17,7 @@ class Reasoner
     
     static *step (knowledge)
     {
-        let rules = knowledge.filter(({data, evidence}) => data instanceof Implication).map(({data, evidence}) => data);
+        let rules = knowledge.filter(({data, evidence}) => data instanceof T.Implication).map(({data, evidence}) => data);
         for (let rule of rules)
         {
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
@@ -34,12 +32,12 @@ class Reasoner
     
     static *solvePremise (premise, knowledge, map = new Map())
     {
-        if (premise instanceof Constant)
+        if (premise instanceof T.Constant)
         {
             if (premise.value === true)
                 yield {map: map, evidence: []};
         }
-        else if (premise instanceof Formula)
+        else if (premise instanceof T.Formula)
         {
             if (premise.list.length === 0)
                 yield {map: map, evidence: []};
@@ -50,7 +48,7 @@ class Reasoner
                 let [head, ...tail] = premise.list;
                 for (let {map: headMap, evidence: headEvidence} of Reasoner.solvePremise(head, knowledge, map))
                 {
-                    let tailGen = Reasoner.solvePremise(new Formula(tail), function*() {for (let {data, evidence} of knowledge) yield {data: data.applyMapping(headMap), evidence: evidence}}(), headMap);
+                    let tailGen = Reasoner.solvePremise(new T.Formula(tail), function*() {for (let {data, evidence} of knowledge) yield {data: data.applyMapping(headMap), evidence: evidence}}(), headMap);
                     for (let {map: tailMap, evidence: tailEvidence} of tailGen)
                         yield {map: new Map(function*() { yield* headMap; yield* tailMap; }()), evidence: [...headEvidence, ...tailEvidence]};
                 }

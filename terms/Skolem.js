@@ -1,4 +1,6 @@
 
+var Term = require('./Term');
+
 class Skolem extends Term
 {
     constructor (name, dependencies)

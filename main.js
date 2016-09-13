@@ -1,21 +1,17 @@
 
-let Constant = require("./terms/Constant");
-let Variable = require("./terms/Variable");
-let Implication = require("./terms/Implication");
-let Triple = require("./terms/Triple");
-let Formula = require("./terms/Formula");
+let T = require('./terms/Terms');
 let ForwardReasoner = require("./ForwardReasoner");
 let BackwardReasoner = require("./BackwardReasoner");
 
-let rule = new Implication(new Formula([new Triple(new Variable("x"), new Constant("b"), new Constant("c"))]),
-                           new Formula([new Triple(new Variable("x"), new Variable("x"), new Variable("x"))]));
-let rule2 = new Implication(new Formula([new Triple(new Variable("x"), new Constant("b"), new Constant("c")),
-                                         new Triple(new Constant("a"), new Constant("b"), new Constant("c"))]),
-                            new Formula([new Triple(new Variable("x"), new Variable("x"), new Variable("x"))]));
-let triple = new Triple(new Constant("a"), new Constant("b"), new Constant("c"));
-let triple2 = new Triple(new Constant("d"), new Constant("b"), new Constant("c"));
+let rule = new T.Implication(new T.Formula([new T.Triple(new T.Variable("x"), new T.Constant("b"), new T.Constant("c"))]),
+                             new T.Formula([new T.Triple(new T.Variable("x"), new T.Variable("x"), new T.Variable("x"))]));
+let rule2 = new T.Implication(new T.Formula([new T.Triple(new T.Variable("x"), new T.Constant("b"), new T.Constant("c")),
+                                             new T.Triple(new T.Constant("a"), new T.Constant("b"), new T.Constant("c"))]),
+                              new T.Formula([new T.Triple(new T.Variable("x"), new T.Variable("x"), new T.Variable("x"))]));
+let triple = new T.Triple(new T.Constant("a"), new T.Constant("b"), new T.Constant("c"));
+let triple2 = new T.Triple(new T.Constant("d"), new T.Constant("b"), new T.Constant("c"));
 
-let goal = new Triple(new Constant("d"), new Constant("d"), new Constant("d"));
+let goal = new T.Triple(new T.Constant("d"), new T.Constant("d"), new T.Constant("d"));
 
 //console.log(rule);
 

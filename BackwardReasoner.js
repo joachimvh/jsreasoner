@@ -1,5 +1,5 @@
 
-let Implication = require("./terms/Implication");
+let T = require('./terms/Terms');
 
 class BackwardReasoner
 {
@@ -29,7 +29,7 @@ class BackwardReasoner
         else
         {
             // TODO: this totally can be stored and added to when necessary
-            let rules = knowledge.filter(({data, evidence}) => data instanceof Implication).map(({data, evidence}) => data);
+            let rules = knowledge.filter(({data, evidence}) => data instanceof T.Implication).map(({data, evidence}) => data);
             for (let {map, rule} of BackwardReasoner.matchingRules(goal, rules))
             {
                 let newGoals = BackwardReasoner.createGoals(rule, map);
