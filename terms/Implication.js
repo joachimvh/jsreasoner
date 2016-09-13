@@ -28,12 +28,8 @@ class Implication extends Term
         return new Implication(this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies}), this.conclusion.toSNF(map));
     }
     
-    solve (map, forward, other)
+    solveAsLeft (map, forward, other)
     {
-        let right = other.solveOnRight(map, forward, this);
-        if (right !== undefined)
-            return right;
-        
         if (!(other instanceof Implication))
             return false;
         

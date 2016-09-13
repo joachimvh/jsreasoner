@@ -24,12 +24,8 @@ class Constant extends Term
         return this;
     }
     
-    solve (map, forward, other)
+    solveAsLeft (map, forward, other)
     {
-        let right = other.solveOnRight(map, forward, this);
-        if (right !== undefined)
-            return right;
-        
         return this.equals(other);
     }
 

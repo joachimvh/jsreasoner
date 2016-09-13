@@ -26,13 +26,9 @@ class Variable extends Term
         return this.applyMapping(status.map);
     }
     
-    solve (map, forward, other)
+    solveAsLeft (map, forward, other)
     {
-        let right = other.solveOnRight(map, forward, this);
-        if (right !== undefined)
-            return right;
-        
-        // should already be covered above
+        // should already be covered on right side
         if (!forward) return false;
         
         if (map.has(this.name))
@@ -41,7 +37,7 @@ class Variable extends Term
         return true;
     }
     
-    solveOnRight (map, forward, other)
+    solveAsRight (map, forward, other)
     {
         if (forward) return true;
         

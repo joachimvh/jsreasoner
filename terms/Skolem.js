@@ -36,12 +36,8 @@ class Skolem extends Term
         throw new Error("Is already in SNF!");
     }
     
-    solve (map, forward, other)
+    solveAsLeft (map, forward, other)
     {
-        let parentResult = super.solve(map, forward, other);
-        if (parentResult !== undefined)
-            return parentResult;
-        
         // for backward: something exists, don't care what
         if (!forward)
             return true;

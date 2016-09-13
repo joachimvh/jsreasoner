@@ -1,5 +1,5 @@
 
-let Term = require('./Term');
+var Term = require('./Term');
 
 class Quantifier extends Term
 {
@@ -29,11 +29,6 @@ class Quantifier extends Term
             status.dependencies.add(this.param);
         
         return this.formula.toSNF(status);
-    }
-    
-    solve (map, forward, other)
-    {
-        throw new Error("Should be in SNF.");
     }
 
     toString ()

@@ -29,12 +29,8 @@ class Triple extends Term
         return new Triple(this.subject.toSNF(status), this.predicate.toSNF(status), this.object.toSNF(status));
     }
     
-    solve (map, forward, other)
+    solveAsLeft (map, forward, other)
     {
-        let right = other.solveOnRight(map, forward, this);
-        if (right !== undefined)
-            return right;
-        
         return other instanceof Triple
                 && this.subject.solve(map, forward, other.subject)
                 && this.predicate.solve(map, forward, other.predicate)

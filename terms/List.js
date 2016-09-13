@@ -36,12 +36,8 @@ class List extends Term
         return new List(this.list.map(e => e.toSNF(status)));
     }
     
-    solve (map, forward, other)
+    solveAsLeft (map, forward, other)
     {
-        let right = other.solveOnRight(map, forward, this);
-        if (right !== undefined)
-            return right;
-        
         if (!(other instanceof List))
             return false;
         if (this.list.length !== other.list.length)
