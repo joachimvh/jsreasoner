@@ -1,5 +1,5 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
 
 class Quantifier extends Term
 {
@@ -34,5 +34,10 @@ class Quantifier extends Term
     solve (map, forward, other)
     {
         throw new Error("Should be in SNF.");
+    }
+
+    toString ()
+    {
+        return (this.forAll ? '@forAll ' : '@forSome ') + this.param + '. ' + this.formula;
     }
 }

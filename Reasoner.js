@@ -1,32 +1,33 @@
 
-var Constant = require("./terms/Constant");
-var Implication = require("./terms/Implication");
-var Formula = require("./terms/Formula");
+let Constant = require("./terms/Constant");
+let Implication = require("./terms/Implication");
+let Formula = require("./terms/Formula");
 
 class Reasoner
 {
     static reason (knowledge)
     {
+        knowledge = knowledge.map(k => { return { data: k, evidence: []} });
         while (true)
         {
-            var head = Reasoner.step(knowledge).next().value;
+            let head = Reasoner.step(knowledge).next().value;
             if (!head)
                 return knowledge;
-            knowledge.push(head.data);
+            knowledge.push(...head);
         }
     }
     
     static *step (knowledge)
     {
-        var rules = knowledge.filter(k => k instanceof Implication);
+        let rules = knowledge.filter(({data, evidence}) => data instanceof Implication).map(({data, evidence}) => data);
         for (let rule of rules)
         {
             for (let {map: map, evidence: evidence} of Reasoner.solvePremise(rule.premise, knowledge))
             {
-                let data = rule.conclusion.applyMapping(map);
+                let data = rule.conclusion.applyMapping(map); // let's just assume the conclusion is a formula for now
                 let newEvidence = [rule, ...evidence];
-                if (knowledge.filter(k => k.equals(data)).length === 0) // TODO: find not working yet?
-                    yield { data: data, evidence: newEvidence };
+                if (data.list.some(d => knowledge.filter(({data, evidence}) => data.equals(d)).length === 0)) // TODO: `find` not working yet?
+                    yield data.list.map(d => { return { data: d, evidence: newEvidence }});
             }
         }
     }
@@ -40,7 +41,7 @@ class Reasoner
         }
         else if (premise instanceof Formula)
         {
-            if (premise.list.length === 0)
+            if (premise.list.lletength === 0)
                 yield {map: map, evidence: []};
             else if (premise.list.length === 1)
                 yield* Reasoner.solvePremise(premise.list[0], knowledge, map);
@@ -49,7 +50,7 @@ class Reasoner
                 let [head, ...tail] = premise.list;
                 for (let {map: headMap, evidence: headEvidence} of Reasoner.solvePremise(head, knowledge, map))
                 {
-                    let tailGen = Reasoner.solvePremise(new Formula(tail), knowledge.map(k => k.applyMapping(headMap)), headMap);
+                    let tailGen = Reasoner.solvePremise(new Formula(tail), function*() {for (let {data, evidence} of knowledge) yield {data: data.applyMapping(headMap), evidence: evidence}}(), headMap);
                     for (let {map: tailMap, evidence: tailEvidence} of tailGen)
                         yield {map: new Map(function*() { yield* headMap; yield* tailMap; }()), evidence: [...headEvidence, ...tailEvidence]};
                 }
@@ -57,11 +58,11 @@ class Reasoner
         }
         else
         {
-            for (let know of knowledge)
+            for (let {data, evidence} of knowledge)
             {
                 let newMap = new Map(map);
-                if (premise.solve(newMap, true, know))
-                    yield { map: newMap, evidence: [know] };
+                if (premise.solve(newMap, true, data))
+                    yield { map: newMap, evidence: [data] };
             }
         }
     }

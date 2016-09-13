@@ -1,5 +1,5 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
 
 class Constant extends Term
 {
@@ -31,6 +31,11 @@ class Constant extends Term
             return right;
         
         return this.equals(other);
+    }
+
+    toString ()
+    {
+        return '<' + this.value + '>';
     }
 }
 

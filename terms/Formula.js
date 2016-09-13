@@ -1,5 +1,5 @@
 
-var List = require("./List");
+let List = require("./List");
 
 class Formula extends List
 {
@@ -13,6 +13,11 @@ class Formula extends List
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
         return new Formula(this.list.map(e => e.toSNF(status)));
+    }
+
+    toString ()
+    {
+        return '{ ' + this.list.join(' ') + ' }';
     }
 }
 

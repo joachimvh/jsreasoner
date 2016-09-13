@@ -3,13 +3,16 @@ class Skolem extends Term
 {
     constructor (name, dependencies)
     {
+        super();
+        if (!(dependencies instanceof Set))
+            throw new Error("Dependencies should be a Set.");
         this.name = name;
         this.dependencies = dependencies;
     }
     
     equals (other)
     {
-        if (! other instanceof Skolem)
+        if (!(other instanceof Skolem))
             return false;
         if (this.name !== other.name)
             return false;
@@ -44,5 +47,10 @@ class Skolem extends Term
             return true;
         
         return this.equals(other);
+    }
+
+    toString ()
+    {
+        return this.name + '(' + this.dependencies.join(', ') + ')';
     }
 }

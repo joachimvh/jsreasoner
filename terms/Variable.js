@@ -1,5 +1,5 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
 
 class Variable extends Term
 {
@@ -50,6 +50,11 @@ class Variable extends Term
             return this.equals(map.get(this.name));
         map.set(this.name, other);
         return true;
+    }
+
+    toString ()
+    {
+        return '?' + this.name;
     }
 }
 

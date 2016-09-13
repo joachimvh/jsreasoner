@@ -1,5 +1,5 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
 
 class Triple extends Term
 {
@@ -39,6 +39,11 @@ class Triple extends Term
                 && this.subject.solve(map, forward, other.subject)
                 && this.predicate.solve(map, forward, other.predicate)
                 && this.object.solve(map, forward, other.object);
+    }
+
+    toString ()
+    {
+        return this.subject + ' ' + this.predicate + ' ' + this.object + '.';
     }
 }
 

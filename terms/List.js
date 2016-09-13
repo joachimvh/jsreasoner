@@ -1,17 +1,20 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
+let _ = require('lodash');
 
 class List extends Term
 {
     constructor (list)
     {
         super();
+        if (!_.isArray(list))
+            throw new Error("Input should be an array.");
         this.list = list;
     }
     
     equals (other)
     {
-        if (!other instanceof List)
+        if (!(other instanceof List))
             return false;
         if (this.list.length !== other.list.length)
             return false;
@@ -39,7 +42,7 @@ class List extends Term
         if (right !== undefined)
             return right;
         
-        if (!other instanceof List)
+        if (!(other instanceof List))
             return false;
         if (this.list.length !== other.list.length)
             return false;
@@ -49,6 +52,11 @@ class List extends Term
                 return false;
         
         return true;
+    }
+
+    toString ()
+    {
+        return '( ' + this.list.join(' ') + ' )';
     }
 }
 

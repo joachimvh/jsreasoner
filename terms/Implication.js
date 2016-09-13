@@ -1,11 +1,14 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
+let Formula = require('./Formula');
 
 class Implication extends Term
 {
     constructor (premise, conclusion)
     {
         super();
+        if (!(premise instanceof Formula) || !(conclusion instanceof Formula))
+            throw new Error("Both premise and conclusion should be formulas.");
         this.premise = premise;
         this.conclusion = conclusion;
     }
@@ -31,10 +34,15 @@ class Implication extends Term
         if (right !== undefined)
             return right;
         
-        if (!other instanceof Implication)
+        if (!(other instanceof Implication))
             return false;
         
         return this.premise.solve(map, forward, other.premise) && this.conclusion.solve(map, forward, other.conclusion);
+    }
+
+    toString ()
+    {
+        return this.premise + ' => ' + this.conclusion + '.';
     }
 }
 
