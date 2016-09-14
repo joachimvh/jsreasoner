@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "dependencies": {
-    "lodash": "^4.15.0"
+    "lodash": "^4.15.0",
+    "n3parser": "git+ssh://git@git.mmlab.be:4444/jvherweg/N3Parser.git"
   }
 }
