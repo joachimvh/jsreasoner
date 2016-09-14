@@ -16,10 +16,14 @@ class N3Parser
     {
         this.blankIdx = 0;
         let lexed = new Lexer().parse(input);
-        return lexed;
+        // there should be no existentials left since these get covered in 'Document'
+        let {variables: {universals=[]}, result} = this.step(lexed, new Map());
+        for (let universal of universals)
+            result = new T.Quantifier(true, universal, result);
+        return result;
     }
 
-    step (thingy, prefixes, variables)
+    step (thingy, prefixes)
     {
         // TODO: quantifiers when implemented in Lexer
         let {type, val} = thingy;
@@ -28,19 +32,19 @@ class N3Parser
             let list = [];
             let newUniversals = [];
             let newExistentials = [];
-            prefixes = [...prefixes];
+            prefixes = new Map(prefixes);
             for (let child of val)
             {
                 if (child.type === 'Prefix')
                 {
                     let [prefix, uri] = child.val;
-                    prefixes.push({[prefix]: uri});
+                    prefixes.set(prefix, uri);
                 }
                 else
                 {
                     // universal variables need to be scoped outside of the formula, existentials inside
                     // prefixes only matter if they are directly one of the child values
-                    let {variables: {universals=[], existentials=[]}, result} = N3Parser.step(child);
+                    let {variables: {universals=[], existentials=[]}, result} = this.step(child, prefixes);
                     newUniversals.push(...universals);
                     newExistentials.push(...existentials);
                     list.push(...result);
@@ -59,7 +63,7 @@ class N3Parser
             {
                 let s = val[0];
                 poList = val[1];
-                let {variables: {universals: sUniverals=[], existentials: sExistentials=[]}, result: result} = N3Parser.step(s);
+                let {variables: {universals: sUniverals=[], existentials: sExistentials=[]}, result: result} = this.step(s, prefixes);
                 newUniversals = sUniverals;
                 newExistentials = sExistentials;
                 sResult = result;
@@ -74,12 +78,12 @@ class N3Parser
             let results = [];
             for (let po of poList)
             {
-                let [p, os] = po;
+                let [p, os] = po.val;
                 if (p.val === '=>')
                 {
                     for (let o of os)
                     {
-                        let {variables: {universals: oUniversals=[]}, result: oResult};
+                        let {variables: {universals: oUniversals=[]}, result: oResult} = this.step(o, prefixes);
                         let result = new T.Implication(sResult, oResult);
                         for (let universal of oUniversals)
                             result = new T.Quantifier(true, universal, result);
@@ -88,7 +92,7 @@ class N3Parser
                 }
                 else
                 {
-                    let {variables: {universals: poUniverals=[], existentials: poExistentials=[]}, result: {p: pResult, os: oResults}} = N3Parser.step(po);
+                    let {variables: {universals: poUniverals=[], existentials: poExistentials=[]}, result: {p: pResult, os: oResults}} = this.step(po, prefixes);
                     newUniversals.push(...poUniverals);
                     newExistentials.push(...poExistentials);
                     for (let oResult of oResults)
@@ -100,11 +104,11 @@ class N3Parser
         else if (type === 'PredicateObject')
         {
             let [p, os] = val;
-            let {variables: {universals: newUniverals=[], existentials: newExistentials=[]}, result: pResult} = N3Parser.step(p);
+            let {variables: {universals: newUniverals=[], existentials: newExistentials=[]}, result: pResult} = this.step(p, prefixes);
             let oResults = [];
             for (let o of os)
             {
-                let {variables: {universals: oUniverals=[], existentials: oExistentials=[]}, result: oResult} = N3Parser.step(o);
+                let {variables: {universals: oUniverals=[], existentials: oExistentials=[]}, result: oResult} = this.step(o, prefixes);
                 newUniverals.push(...oUniverals);
                 newExistentials.push(...oExistentials);
                 oResults.push(oResult);
@@ -117,12 +121,36 @@ class N3Parser
             let list = [];
             for (let child of val)
             {
-                let {variables: {universals=[], existentials=[]}, result} = N3Parser.step(child);
+                let {variables: {universals=[], existentials=[]}, result} = this.step(child, prefixes);
                 newUniversals.push(...universals);
                 newExistentials.push(...existentials);
                 list.push(result);
             }
             return {variables: {universals: newUniversals, existentials: newExistentials}}
+        }
+        else if (type === 'Variable')
+        {
+            let result = new T.Variable(val.substring(1));
+            return {variables: {universals: [result]}, result: result};
+        }
+        else if (type === 'PrefixedIRI')
+        {
+            let prefixIdx = val.indexOf(':');
+            var prefix = val.substring(0, prefixIdx);
+            if (prefix === '_')
+            {
+                let v = new T.Variable(val.substring(prefixIdx + 1));
+                return {result: v, variables: {existentials: [v]}};
+            }
+            else if (prefixes.has(prefix))
+                return {result: new T.Constant(prefixes[prefix] + val.substring(prefixIdx + 1)), variables: {}};
+            else
+                return {result: new T.Constant(val), variables: {}};
+        }
+        else
+        {
+            // Totally complete
+            return {result: new T.Constant(val), variables: {}};
         }
     }
 }
