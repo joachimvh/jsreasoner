@@ -1,12 +1,13 @@
 
-var Term = require('./Term');
+let Term = require('./Term');
+let Skolem = require('./Skolem');
 
 class Quantifier extends Term
 {
     constructor (forAll, param, formula)
     {
         super();
-        this.forAll = true;
+        this.forAll = forAll;
         this.param = param;
         this.formula = formula;
     }
@@ -23,7 +24,7 @@ class Quantifier extends Term
     
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        if (this.forAll && status.changeQuant || !this.forSome && !status.changeQuant)
+        if (this.forAll && status.changeQuant || !this.forAll && !status.changeQuant)
             status.map.set(this.param, new Skolem(this.param, status.dependencies));
         else
             status.dependencies.add(this.param);
