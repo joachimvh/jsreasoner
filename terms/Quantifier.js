@@ -37,3 +37,5 @@ class Quantifier extends Term
         return (this.forAll ? '@forAll ' : '@forSome ') + this.param + '. ' + this.formula;
     }
 }
+
+module.exports = Quantifier;
