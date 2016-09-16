@@ -35,9 +35,9 @@ let parser = new Parser();
 let terms = parser.toTerms('{ ?x :b :c. :a :b :c. } => { ?x ?x ?x }. :a :b :c. :d :b :c.').list;
 let goals = parser.toTerms(':d :d :d.').list;
 console.log('FORWARD REASONING');
-console.log(ForwardReasoner.reason(terms).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
+console.log(new ForwardReasoner().reason(terms).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
 console.log('BACKWARD REASONING');
-console.log(BackwardReasoner.reason(goals, terms).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
+console.log(new BackwardReasoner().reason(goals, terms).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
 
 // let parser = new Parser();
 // let terms = parser.toTerms('@forAll :x. { :x :b :c. :a :b :c. } => { :x :x :x }. @forSome :b. :a :b :c. :d :b :c.');

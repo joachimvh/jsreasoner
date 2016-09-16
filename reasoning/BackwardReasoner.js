@@ -3,12 +3,18 @@ let T = require('./../terms/Terms');
 
 class BackwardReasoner
 {
-    static reason (goals, knowledge)
+    constructor()
     {
+        this.rules = [];
+    }
+    
+    reason (goals, knowledge)
+    {
+        this.rules = knowledge.filter(k => k instanceof T.Implication);
         knowledge = knowledge.map(k => { return { data: k, evidence: []} });
         while (true)
         {
-            let head = BackwardReasoner.step(goals, knowledge).next().value;
+            let head = this.step(goals, knowledge).next().value;
             if (!head)
                 return null;
             if (head.goals.length === 0)
@@ -18,31 +24,31 @@ class BackwardReasoner
         }
     }
     
-    static *step (goals, knowledge)
+    *step (goals, knowledge)
     {
         if (goals.length === 0)
             return yield { goals: [], knowledge: knowledge};
         let goal = goals[0];
     
         if (knowledge.find(({data, evidence}) => data.equals(goal)) !== undefined)
-            yield* BackwardReasoner.step(goals.slice(1), knowledge);
+            yield* this.step(goals.slice(1), knowledge);
         else
         {
-            // TODO: this totally can be stored and added to when necessary
-            let rules = knowledge.filter(({data, evidence}) => data instanceof T.Implication).map(({data, evidence}) => data);
-            for (let {map, rule} of BackwardReasoner.matchingRules(goal, rules))
+            for (let {map, rule} of this.matchingRules(goal))
             {
                 let newGoals = BackwardReasoner.createGoals(rule, map);
                 let evidence = [rule, ...newGoals];
-                let newKnowledge = BackwardReasoner.createKnowledge(rule, map).map(k => { return { data: k, evidence: evidence}});
+                let newData = BackwardReasoner.createKnowledge(rule, map);
+                this.rules.push(...newData.filter(d => d instanceof T.Implication));
+                let newKnowledge = newData.map(k => { return { data: k, evidence: evidence}});
                 yield { goals: [...goals.slice(1), ...newGoals], knowledge: [...knowledge, ...newKnowledge] };
             }
         }
     }
     
-    static *matchingRules (goal, rules)
+    *matchingRules (goal)
     {
-        for (let rule of rules)
+        for (let rule of this.rules)
         {
             // TODO: find if any of the elements in rule.conclusion.list match the goal
             for (let conclusion of rule.conclusion.list)
