@@ -52,3 +52,5 @@ class Skolem extends Term
         return this.name + '(' + this.dependencies.join(', ') + ')';
     }
 }
+
+module.exports = Skolem;

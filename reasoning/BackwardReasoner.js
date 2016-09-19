@@ -3,13 +3,14 @@ let T = require('./../terms/Terms');
 
 class BackwardReasoner
 {
-    constructor()
+    constructor ()
     {
         this.rules = [];
     }
     
     reason (goals, knowledge)
     {
+        knowledge = knowledge.map(k => k.toSNF());
         this.rules = knowledge.filter(k => k instanceof T.Implication);
         knowledge = knowledge.map(k => { return { data: k, evidence: []} });
         while (true)

@@ -10,6 +10,7 @@ class ForwardReasoner
     
     reason (knowledge)
     {
+        knowledge = knowledge.map(k => k.toSNF());
         this.rules = knowledge.filter(k => k instanceof T.Implication);
         knowledge = knowledge.map(k => { return { data: k, evidence: []} });
         while (true)
