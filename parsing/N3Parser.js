@@ -8,15 +8,15 @@ class N3Parser
 {
     constructor()
     {
-        this.blankIdx = 0;
+        this.nameIdx = 0;
     }
 
     toTerms (input)
     {
-        this.blankIdx = 0;
+        this.nameIdx = 0;
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
-        let {result} = this.step(lexed, new Map(), new Set());
+        let {result} = this.step(lexed, new Map(), new Map());
         return result.updateQuantifiers(new Set());
     }
 
@@ -39,7 +39,7 @@ class N3Parser
             // Totally complete
         {
             if (variables.has(val))
-                return { result: new T.Variable(val) };
+                return { result: new T.Variable(variables.get(val)) };
             return { result: new T.Constant(val) };
         }
     }
@@ -50,7 +50,7 @@ class N3Parser
         let newInner = [];
         let newOuter = [];
         prefixes = new Map(prefixes);
-        variables = new Set(variables); // clone since some variable names might be re-used later as non-variables (please don't do that though)
+        variables = new Map(variables); // clone since some variable names might be re-used later as non-variables (please don't do that though)
         for (let child of val)
         {
             if (child.type === 'Prefix')
@@ -65,9 +65,10 @@ class N3Parser
                 // will actually break if non-constants are used for parameters for now
                 for (let param of child.val)
                 {
-                    let v = new T.Variable(this.step(param, prefixes, variables).result.value);
+                    let p = this.step(param, prefixes, variables).result.value;
+                    let v = new T.Variable('v_' + this.nameIdx++);
+                    variables.set(p, v);
                     list.push({ quant: true, forAll: child.type === 'Universal', result: v});
-                    variables.add(v.name)
                 }
             }
             else
@@ -124,7 +125,7 @@ class N3Parser
         else // BlankTripleData
         {
             poList = val[0];
-            sResult = new T.Variable('b_' + this.blankIdx++);
+            sResult = new T.Variable('b_' + this.nameIdx++);
             newInner.push({ universal: false, term: sResult });
         }
     
@@ -185,7 +186,10 @@ class N3Parser
     
     handleVariable ({type, val}, prefixes, variables)
     {
-        let result = new T.Variable(val.substring(1));
+        let name = val.substring(1);
+        if (!variables.has(name))
+            variables.set(name, 'v_' + this.nameIdx++);
+        let result = new T.Variable(variables.get(name));
         return {outerVariables: [{ universal: true, term: result }], result: result};
     }
     
@@ -195,12 +199,15 @@ class N3Parser
         var prefix = val.substring(0, prefixIdx);
         if (prefix === '_')
         {
-            let v = new T.Variable(val.substring(prefixIdx + 1));
+            let name = val.substring(prefixIdx + 1);
+            if (!variables.has(name))
+                variables.set(name, 'v_' + this.nameIdx++);
+            let v = new T.Variable(variables.get(name));
             return {result: v, innerVariables: [ { universal: false, term: v } ] };
         }
         
         if (variables.has(val))
-            return {result: new T.Variable(val)};
+            return {result: new T.Variable(variables.get(val))};
         return {result: new T.Constant(val)};
     }
 }
