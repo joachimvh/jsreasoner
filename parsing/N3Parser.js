@@ -16,7 +16,7 @@ class N3Parser
         this.blankIdx = 0;
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
-        let {innerVariables=[], result} = this.step(lexed, new Map(), new Set());
+        let {result} = this.step(lexed, new Map(), new Set());
         return result.updateQuantifiers(new Set());
     }
 

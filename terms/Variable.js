@@ -55,7 +55,7 @@ class Variable extends Term
 
     toString ()
     {
-        return '_' + this.name;
+        return '$' + this.name;
     }
 }
 

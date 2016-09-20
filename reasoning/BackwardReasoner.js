@@ -1,6 +1,7 @@
 
 let T = require('./../terms/Terms');
 
+// TODO: nested rules?
 class BackwardReasoner
 {
     constructor ()
