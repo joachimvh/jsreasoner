@@ -28,7 +28,7 @@ class Quantifier extends Term
         // could optimize to only copy the necessary parts
         status = { map: new Map(status.map), changeQuant: status.changeQuant, dependencies: new Set(status.dependencies)};
         if (this.forAll && status.changeQuant || !this.forAll && !status.changeQuant)
-            status.map.set(this.param.name, new Skolem(this.param, status.dependencies));
+            status.map.set(this.param.name, new Skolem(this.param.name, status.dependencies));
         else
             status.dependencies.add(this.param);
         

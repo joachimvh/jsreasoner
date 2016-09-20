@@ -54,7 +54,7 @@ class Skolem extends Term
 
     toString ()
     {
-        return this.name + '(' + [...this.dependencies].join(', ') + ')';
+        return '#' + this.name + '(' + [...this.dependencies].join(', ') + ')';
     }
 }
 
