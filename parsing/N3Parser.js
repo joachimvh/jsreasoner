@@ -1,5 +1,4 @@
 
-// TODO: start from parser or lexer? parser has the advantage of already handling some of the interpretation but does decrease performance
 let Lexer = require('n3parser').N3Lexer;
 let T = require('../terms/Terms');
 let _ = require('lodash');
