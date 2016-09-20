@@ -24,6 +24,11 @@ class Constant extends Term
         return this;
     }
     
+    updateQuantifiers ()
+    {
+        return this;
+    }
+    
     solveAsLeft (map, forward, other)
     {
         return this.equals(other);

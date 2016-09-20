@@ -29,6 +29,11 @@ class Implication extends Term
         return new Implication(this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies}), this.conclusion.toSNF(status));
     }
     
+    updateQuantifiers (variables = new Set())
+    {
+        return new Implication(this.premise.updateQuantifiers(variables), this.conclusion.updateQuantifiers(variables));
+    }
+    
     solveAsLeft (map, forward, other)
     {
         if (!(other instanceof Implication))

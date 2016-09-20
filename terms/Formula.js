@@ -14,6 +14,11 @@ class Formula extends List
     {
         return new Formula(this.list.map(e => e.toSNF(status)));
     }
+    
+    updateQuantifiers (variables = new Set())
+    {
+        return new Formula(this.list.map(e => e.updateQuantifiers(variables)));
+    }
 
     toString ()
     {

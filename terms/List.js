@@ -36,6 +36,11 @@ class List extends Term
         return new List(this.list.map(e => e.toSNF(status)));
     }
     
+    updateQuantifiers (variables = new Set())
+    {
+        return new List(this.list.map(e => e.updateQuantifiers(variables)));
+    }
+    
     solveAsLeft (map, forward, other)
     {
         if (!(other instanceof List))

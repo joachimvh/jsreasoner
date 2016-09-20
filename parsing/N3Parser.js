@@ -19,7 +19,7 @@ class N3Parser
         let {innerVariables=[], result} = this.step(lexed, new Map(), new Set());
         for (let {term, universal} of innerVariables)
             result = new T.Quantifier(universal, term, result);
-        return result;
+        return result.updateQuantifiers(new Set());
     }
 
     step (thingy, prefixes, variables)

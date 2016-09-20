@@ -31,6 +31,16 @@ class Quantifier extends Term
         
         return this.formula.toSNF(status);
     }
+    
+    updateQuantifiers (variables = new Set())
+    {
+        if (variables.has(this.param))
+            return this.formula.updateQuantifiers(variables);
+        // need to duplicate set to make sure this variables stays in the correct scope
+        variables = new Set(variables);
+        variables.add(this.param);
+        return new Quantifier(this.forAll, this.param, this.formula.updateQuantifiers(variables));
+    }
 
     toString ()
     {

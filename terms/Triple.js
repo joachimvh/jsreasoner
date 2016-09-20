@@ -29,6 +29,11 @@ class Triple extends Term
         return new Triple(this.subject.toSNF(status), this.predicate.toSNF(status), this.object.toSNF(status));
     }
     
+    updateQuantifiers (variables = new Set())
+    {
+        return new Triple(this.subject.updateQuantifiers(variables), this.predicate.updateQuantifiers(variables), this.object.updateQuantifiers(variables));
+    }
+    
     solveAsLeft (map, forward, other)
     {
         return other instanceof Triple

@@ -26,6 +26,11 @@ class Variable extends Term
         return this.applyMapping(status.map);
     }
     
+    updateQuantifiers ()
+    {
+        return this;
+    }
+    
     solveAsLeft (map, forward, other)
     {
         // should already be covered on right side

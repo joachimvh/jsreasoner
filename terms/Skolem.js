@@ -38,6 +38,11 @@ class Skolem extends Term
         throw new Error("Is already in SNF!");
     }
     
+    updateQuantifiers (variables = new Set())
+    {
+        return this;
+    }
+    
     solveAsLeft (map, forward, other)
     {
         // for backward: something exists, don't care what
