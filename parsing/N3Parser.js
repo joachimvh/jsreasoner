@@ -16,10 +16,10 @@ class N3Parser
     {
         this.blankIdx = 0;
         let lexed = new Lexer().parse(input);
-        // there should be no existentials left since these get covered in 'Document'
-        let {variables: {universals=[]}, result} = this.step(lexed, new Map(), new Set());
-        for (let universal of universals)
-            result = new T.Quantifier(true, universal, result);
+        // there should be no outer variables left since a 'Document' only returns inner
+        let {innerVariables=[], result} = this.step(lexed, new Map(), new Set());
+        for (let {term, universal} of innerVariables)
+            result = new T.Quantifier(universal, term, result);
         return result;
     }
 
@@ -42,16 +42,16 @@ class N3Parser
             // Totally complete
         {
             if (variables.has(val))
-                return { result: new T.Variable(val), variables: {} };
-            return { result: new T.Constant(val), variables: {} };
+                return { result: new T.Variable(val) };
+            return { result: new T.Constant(val) };
         }
     }
     
     handleFormula({type, val}, prefixes, variables)
     {
         let list = [];
-        let newUniversals = [];
-        let newExistentials = [];
+        let newInner = [];
+        let newOuter = [];
         prefixes = new Map(prefixes);
         variables = new Set(variables); // clone since some variable names might be re-used later as non-variables (please don't do that though)
         for (let child of val)
@@ -77,9 +77,9 @@ class N3Parser
             {
                 // universal variables need to be scoped outside of the formula, existentials inside
                 // prefixes only matter if they are directly one of the child values
-                let {variables: {universals=[], existentials=[]}, result} = this.step(child, prefixes, variables);
-                newUniversals.push(...universals);
-                newExistentials.push(...existentials);
+                let {outerVariables: outer=[], innerVariables: inner=[], result} = this.step(child, prefixes, variables);
+                newInner.push(...inner);
+                newOuter.push(...outer);
                 list.push(...result);
             }
         }
@@ -99,29 +99,30 @@ class N3Parser
         let result = list[0];
         if (!(result instanceof T.Formula || result instanceof T.Quantifier) || list.length > 1)
             result = new T.Formula(list);
-        for (let existential of newExistentials)
-            result = new T.Quantifier(false, existential, result);
-        return {variables: {universals: newUniversals}, result: result};
+        // TODO: first universals, then existentials
+        for (let {term, universal} of newInner)
+            result = new T.Quantifier(universal, term, result);
+        return {innerVariables: newOuter, result: result};
     }
     
     handleTripleData ({type, val}, prefixes, variables)
     {
         let sResult, poList;
-        let newUniversals = [], newExistentials = [];
+        let newInner = [], newOuter = [];
         if (type === 'TripleData')
         {
             let s = val[0];
             poList = val[1];
-            let {variables: {universals: sUniverals=[], existentials: sExistentials=[]}, result: result} = this.step(s, prefixes, variables);
-            newUniversals = sUniverals;
-            newExistentials = sExistentials;
+            let {innerVariables: inner=[], outerVariables: outer=[], result: result} = this.step(s, prefixes, variables);
+            newInner = inner;
+            newOuter = outer;
             sResult = result;
         }
         else // BlankTripleData
         {
             poList = val[0];
             sResult = new T.Variable('b_' + this.blankIdx++);
-            newExistentials.push(sResult);
+            newInner.push({ universal: false, term: sResult });
         }
     
         let results = [];
@@ -132,58 +133,57 @@ class N3Parser
             {
                 for (let o of os)
                 {
-                    let {variables: {universals: oUniversals=[]}, result: oResult} = this.step(o, prefixes, variables);
-                    let result = new T.Implication(sResult, oResult);
-                    for (let universal of oUniversals)
-                        result = new T.Quantifier(true, universal, result);
-                    results.push(result);
+                    let {outerVariables: outer=[], innerVariables: inner=[], result: oResult} = this.step(o, prefixes, variables);
+                    newInner.push(...inner);
+                    newOuter.push(...outer);
+                    results.push(new T.Implication(sResult, oResult));
                 }
             }
             else
             {
-                let {variables: {universals: poUniverals=[], existentials: poExistentials=[]}, result: {p: pResult, os: oResults}} = this.step(po, prefixes, variables);
-                newUniversals.push(...poUniverals);
-                newExistentials.push(...poExistentials);
+                let {outerVariables: outer=[], innerVariables: inner=[], result: {p: pResult, os: oResults}} = this.step(po, prefixes, variables);
+                newInner.push(...inner);
+                newOuter.push(...outer);
                 for (let oResult of oResults)
                     results.push(new T.Triple(sResult, pResult, oResult));
             }
         }
-        return {variables: {universals: newUniversals, existentials: newExistentials}, result: results};
+        return {outerVariables: newOuter, innerVariables: newInner, result: results};
     }
     
     handlePredicateObject ({type, val}, prefixes, variables)
     {
         let [p, os] = val;
-        let {variables: {universals: newUniverals=[], existentials: newExistentials=[]}, result: pResult} = this.step(p, prefixes, variables);
+        let {innerVariables: newInner=[], outerVariables: newOuter=[], result: pResult} = this.step(p, prefixes, variables);
         let oResults = [];
         for (let o of os)
         {
-            let {variables: {universals: oUniverals=[], existentials: oExistentials=[]}, result: oResult} = this.step(o, prefixes, variables);
-            newUniverals.push(...oUniverals);
-            newExistentials.push(...oExistentials);
+            let {innerVariables: inner=[], outerVariables: outer=[], result: oResult} = this.step(o, prefixes, variables);
+            newInner.push(...inner);
+            newOuter.push(...outer);
             oResults.push(oResult);
         }
-        return {variables: {universals: newUniverals, existentials: newExistentials}, result: {p: pResult, os: oResults}};
+        return {innerVariables: newInner, outerVariables: newOuter, result: {p: pResult, os: oResults}};
     }
     
     handleList ({type, val}, prefixes, variables)
     {
-        let newUniversals = [], newExistentials = [];
+        let newInner = [], newOuter = [];
         let list = [];
         for (let child of val)
         {
-            let {variables: {universals=[], existentials=[]}, result} = this.step(child, prefixes, variables);
-            newUniversals.push(...universals);
-            newExistentials.push(...existentials);
+            let {innerVars=[], outerVars=[], result} = this.step(child, prefixes, variables);
+            newInner.push(...innerVars);
+            newOuter.push(...outerVars);
             list.push(result);
         }
-        return {variables: {universals: newUniversals, existentials: newExistentials}}
+        return {innerVariables: newInner, outerVariables: newOuter}
     }
     
     handleVariable ({type, val}, prefixes, variables)
     {
         let result = new T.Variable(val.substring(1));
-        return {variables: {universals: [result]}, result: result};
+        return {outerVariables: [{ universal: true, term: result }], result: result};
     }
     
     handlePrefixedIRI ({type, val}, prefixes, variables)
@@ -193,12 +193,12 @@ class N3Parser
         if (prefix === '_')
         {
             let v = new T.Variable(val.substring(prefixIdx + 1));
-            return {result: v, variables: {existentials: [v]}};
+            return {result: v, innerVariables: [ { universal: false, term: v } ] };
         }
         
         if (variables.has(val))
-            return {result: new T.Variable(val), variables: {}};
-        return {result: new T.Constant(val), variables: {}};
+            return {result: new T.Variable(val)};
+        return {result: new T.Constant(val)};
     }
 }
 
