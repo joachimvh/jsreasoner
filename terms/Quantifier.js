@@ -1,6 +1,7 @@
 
 let Term = require('./Term');
 let Skolem = require('./Skolem');
+let Formula = require('./Formula');
 
 class Quantifier extends Term
 {
@@ -44,7 +45,7 @@ class Quantifier extends Term
 
     toString ()
     {
-        return (this.forAll ? '{∀ ' : '{∃ ') + this.param + ': ' + this.formula.list.join(' ') + '}';
+        return (this.forAll ? '{∀ ' : '{∃ ') + this.param + ': ' + (this.formula instanceof Formula ? this.formula.list.join(' ') : this.formula) + '}';
     }
 }
 
