@@ -35,11 +35,11 @@ class Quantifier extends Term
     
     updateQuantifiers (variables = new Set())
     {
-        if (variables.has(this.param))
+        if (variables.has(this.param.name))
             return this.formula.updateQuantifiers(variables);
         // need to duplicate set to make sure this variables stays in the correct scope
         variables = new Set(variables);
-        variables.add(this.param);
+        variables.add(this.param.name);
         return new Quantifier(this.forAll, this.param, this.formula.updateQuantifiers(variables));
     }
 
