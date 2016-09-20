@@ -30,7 +30,7 @@ class Skolem extends Term
     
     applyMapping (map)
     {
-        return new Skolem(this.name, this.dependencies.map(e => e.applyMapping(map)));
+        return new Skolem(this.name, new Set([...this.dependencies].map(e => e.applyMapping(map))));
     }
     
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
