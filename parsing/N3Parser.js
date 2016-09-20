@@ -101,7 +101,7 @@ class N3Parser
             result = new T.Formula(list);
         for (let existential of newExistentials)
             result = new T.Quantifier(false, existential, result);
-        return {variables: {unversals: newUniversals}, result: result};
+        return {variables: {universals: newUniversals}, result: result};
     }
     
     handleTripleData ({type, val}, prefixes, variables)
