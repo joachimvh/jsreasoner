@@ -44,7 +44,7 @@ class Quantifier extends Term
 
     toString ()
     {
-        return (this.forAll ? '∀ ' : '∃ ') + this.param + ': (' + this.formula + ')';
+        return (this.forAll ? '{∀ ' : '{∃ ') + this.param + ': ' + this.formula.list.join(' ') + '}';
     }
 }
 
