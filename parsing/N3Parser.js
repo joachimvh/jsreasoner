@@ -17,8 +17,6 @@ class N3Parser
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
         let {innerVariables=[], result} = this.step(lexed, new Map(), new Set());
-        for (let {term, universal} of innerVariables)
-            result = new T.Quantifier(universal, term, result);
         return result.updateQuantifiers(new Set());
     }
 
@@ -101,6 +99,12 @@ class N3Parser
         // TODO: first universals, then existentials
         for (let {term, universal} of newInner)
             result = new T.Quantifier(universal, term, result);
+        if (type === 'Document')
+        {
+            for (let {term, universal} of newOuter)
+                result = new T.Quantifier(universal, term, result);
+            newOuter = undefined;
+        }
         return {innerVariables: newOuter, result: result};
     }
     
