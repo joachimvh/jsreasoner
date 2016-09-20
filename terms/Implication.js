@@ -8,8 +8,6 @@ class Implication extends Term
     constructor (premise, conclusion)
     {
         super();
-        if (!(premise instanceof Formula || premise instanceof Quantifier) || !(conclusion instanceof Formula || conclusion instanceof Quantifier))
-            throw new Error("Both premise and conclusion should be formulas.");
         this.premise = premise;
         this.conclusion = conclusion;
     }
