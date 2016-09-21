@@ -26,9 +26,11 @@ class Variable extends Term
         return this.applyMapping(status.map);
     }
     
-    updateQuantifiers ()
+    updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        return this;
+        if (!status.variables.has(this.name))
+            throw new Error("Unidentified variable " + this.toString());
+        return new Variable(status.variables.get(this.name));
     }
     
     solveAsLeft (map, forward, other)

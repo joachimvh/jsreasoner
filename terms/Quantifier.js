@@ -2,12 +2,15 @@
 let Term = require('./Term');
 let Skolem = require('./Skolem');
 let Formula = require('./Formula');
+let Variable = require('./Variable');
 
 class Quantifier extends Term
 {
     constructor (forAll, param, formula)
     {
         super();
+        if (!(param instanceof Variable))
+            throw new Error("Only variables are supported as quantifier parameters");
         this.forAll = forAll;
         this.param = param;
         this.formula = formula;
@@ -35,14 +38,17 @@ class Quantifier extends Term
         return this.formula.toSNF(status);
     }
     
-    updateQuantifiers (variables = new Set())
+    updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        if (variables.has(this.param.name))
-            return this.formula.updateQuantifiers(variables);
+        if (status.variables.has(this.param.name))
+            return this.formula.updateQuantifiers(status);
         // need to duplicate set to make sure this variables stays in the correct scope
-        variables = new Set(variables);
-        variables.add(this.param.name);
-        return new Quantifier(this.forAll, this.param, this.formula.updateQuantifiers(variables));
+        let newStatus = {variables: new Map(status.variables), nameIdx: status.nameIdx};
+        let varName = 'v_' + newStatus.nameIdx++;
+        newStatus.variables.set(this.param.name, varName);
+        let newFormula = this.formula.updateQuantifiers(newStatus);
+        status.nameIdx = newStatus.nameIdx; // make sure the idx value gets propagated
+        return new Quantifier(this.forAll, new Variable(varName), newFormula);
     }
 
     toString ()

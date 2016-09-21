@@ -38,7 +38,7 @@ class Skolem extends Term
         throw new Error("Is already in SNF!");
     }
     
-    updateQuantifiers (variables = new Set())
+    updateQuantifiers ()
     {
         return this;
     }

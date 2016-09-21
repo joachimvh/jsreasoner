@@ -27,9 +27,9 @@ class Implication extends Term
         return new Implication(this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies}), this.conclusion.toSNF(status));
     }
     
-    updateQuantifiers (variables = new Set())
+    updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        return new Implication(this.premise.updateQuantifiers(variables), this.conclusion.updateQuantifiers(variables));
+        return new Implication(this.premise.updateQuantifiers(status), this.conclusion.updateQuantifiers(status));
     }
     
     solveAsLeft (map, forward, other)
