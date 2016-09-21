@@ -24,14 +24,25 @@ class Triple extends Term
         return new Triple(this.subject.applyMapping(map), this.predicate.applyMapping(map), this.object.applyMapping(map));
     }
     
+    // TODO: similarity between toSNF and updateQuantifiers
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        return new Triple(this.subject.toSNF(status), this.predicate.toSNF(status), this.object.toSNF(status));
+        let s = this.subject.toSNF(status);
+        let p = this.predicate.toSNF(status);
+        let o = this.object.toSNF(status);
+        if (s.length !== 1 || p.length !== 1 || o.length !== 1)
+            throw new Error("Triple can not contain multiple elements in any position.");
+        return new Triple(s[0], p[0], o[0]);
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        return new Triple(this.subject.updateQuantifiers(status), this.predicate.updateQuantifiers(status), this.object.updateQuantifiers(status));
+        let s = this.subject.updateQuantifiers(status);
+        let p = this.predicate.updateQuantifiers(status);
+        let o = this.object.updateQuantifiers(status);
+        if (s.length !== 1 || p.length !== 1 || o.length !== 1)
+            throw new Error("Triple can not contain multiple elements in any position.");
+        return new Triple(s[0], p[0], o[0]);
     }
     
     solveAsLeft (map, forward, other)

@@ -33,12 +33,12 @@ class List extends Term
     
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        return new List(this.list.map(e => e.toSNF(status)));
+        return [new List([].concat(...this.list.map(e => e.toSNF(status))))];
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        return new List(this.list.map(e => e.updateQuantifiers(status)));
+        return [new List([].concat(...this.list.map(e => e.updateQuantifiers(status))))];
     }
     
     solveAsLeft (map, forward, other)

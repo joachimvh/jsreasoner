@@ -11,6 +11,8 @@ class BackwardReasoner
     
     reason (goals, knowledge)
     {
+        knowledge = [].concat(...knowledge.map(k => k.toSNF()));
+        goals = [].concat(...goals.map(g => g.toSNF()));
         this.rules = knowledge.filter(k => k instanceof T.Implication);
         knowledge = knowledge.map(k => { return { data: k, evidence: []} });
         while (true)

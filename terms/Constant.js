@@ -21,12 +21,12 @@ class Constant extends Term
     
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        return this;
+        return [this];
     }
     
     updateQuantifiers ()
     {
-        return this;
+        return [this];
     }
     
     solveAsLeft (map, forward, other)

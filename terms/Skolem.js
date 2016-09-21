@@ -40,7 +40,7 @@ class Skolem extends Term
     
     updateQuantifiers ()
     {
-        return this;
+        return [this];
     }
     
     solveAsLeft (map, forward, other)

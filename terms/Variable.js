@@ -23,14 +23,14 @@ class Variable extends Term
     
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        return this.applyMapping(status.map);
+        return [this.applyMapping(status.map)];
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
         if (!status.variables.has(this.name))
             throw new Error("Unidentified variable " + this.toString());
-        return new Variable(status.variables.get(this.name));
+        return [new Variable(status.variables.get(this.name))];
     }
     
     solveAsLeft (map, forward, other)

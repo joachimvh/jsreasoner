@@ -12,12 +12,12 @@ class Formula extends List
     // TODO: need to preserve status when stepping out of formula again
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        return new Formula(this.list.map(e => e.toSNF(status)));
+        return [new Formula([].concat(...this.list.map(e => e.toSNF(status))))];
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        return new Formula(this.list.map(e => e.updateQuantifiers(status)));
+        return [new Formula([].concat(...this.list.map(e => e.updateQuantifiers(status))))];
     }
 
     toString ()

@@ -22,14 +22,23 @@ class Implication extends Term
         return new Implication(this.premise.applyMapping(map), this.conclusion.applyMapping(map));
     }
     
+    // TODO: similarity between toSNF and updateQuantifiers
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
     {
-        return new Implication(this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies}), this.conclusion.toSNF(status));
+        let premise = this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies});
+        let conclusion = this.conclusion.toSNF(status);
+        if (premise.length !== 1 || conclusion.length !== 1)
+            throw new Error("Premise and conclusion should not be lists.");
+        return [new Implication(premise[0], conclusion[0])];
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
-        return new Implication(this.premise.updateQuantifiers(status), this.conclusion.updateQuantifiers(status));
+        let premise = this.premise.updateQuantifiers(status);
+        let conclusion = this.conclusion.updateQuantifiers(status);
+        if (premise.length !== 1 || conclusion.length !== 1)
+            throw new Error("Premise and conclusion should not be lists.");
+        return [new Implication(premise[0], conclusion[0])];
     }
     
     solveAsLeft (map, forward, other)

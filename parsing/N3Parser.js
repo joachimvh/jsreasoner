@@ -17,7 +17,8 @@ class N3Parser
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
         let {result} = this.step(lexed, new Map(), new Set());
-        return result.updateQuantifiers();
+        // result is a list (since we don't want an encapsulatin formula around the document)
+        return [].concat(...result.map(e => e.updateQuantifiers()));
     }
 
     step (thingy, prefixes, variables)
@@ -91,21 +92,21 @@ class N3Parser
                 // cut off the tail of the list
                 let subList = list.splice(i+1);
                 // let the last element of the list be the new formula
-                list[i] = new T.Quantifier(list[i].forAll, list[i].result, new T.Formula(subList));
+                list[i] = new T.Quantifier(list[i].forAll, list[i].result, subList);
             }
         }
-        let result = list[0];
-        if (!(result instanceof T.Formula || result instanceof T.Quantifier) || list.length > 1)
-            result = new T.Formula(list);
+        let result = list;
         // TODO: first universals, then existentials
         for (let {term, universal} of newInner)
-            result = new T.Quantifier(universal, term, result);
+            result = [new T.Quantifier(universal, term, result)];
         if (type === 'Document')
         {
             for (let {term, universal} of newOuter)
-                result = new T.Quantifier(universal, term, result);
+                result = [new T.Quantifier(universal, term, result)];
             newOuter = undefined;
         }
+        else
+            result = new T.Formula(result);
         return {innerVariables: newOuter, result: result};
     }
     
