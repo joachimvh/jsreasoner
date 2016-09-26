@@ -3,7 +3,8 @@ class Term
 {
     equals (other) { throw new Error("Not implemented yet"); }
     applyMapping (map) { throw new Error("Not implemented yet"); }
-    toSNF (status = { mapping: new Map(), changeQuant: false, dependencies: new Set()}) { throw new Error("Not implemented yet"); }
+    // Current definition of SNF: scoping stops at the edge of a formula UNLESS that formula is part of an implication
+    toSNF (status = { mapping: new Map(), changeQuant: false, dependencies: new Set(), parent: null}) { throw new Error("Not implemented yet"); }
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0}) { throw new Error("Not implemented yet"); }
     
     solveAsRight (map, forward, other) { return undefined; } // probably only needed for Variable.js

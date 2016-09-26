@@ -1,6 +1,5 @@
 
 let Term = require('./Term');
-let Formula = require('./Formula');
 let Quantifier = require('./Quantifier');
 
 class Implication extends Term
@@ -23,10 +22,10 @@ class Implication extends Term
     }
     
     // TODO: similarity between toSNF and updateQuantifiers
-    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
+    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set(), parent: null})
     {
-        let premise = this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies});
-        let conclusion = this.conclusion.toSNF(status);
+        let premise = this.premise.toSNF({map: status.map, changeQuant: !status.changeQuant, dependencies: status.dependencies, parent: this});
+        let conclusion = this.conclusion.toSNF(Object.assign(status, {parent: this}));
         if (premise.length !== 1 || conclusion.length !== 1)
             throw new Error("Premise and conclusion should not be lists.");
         return [new Implication(premise[0], conclusion[0])];

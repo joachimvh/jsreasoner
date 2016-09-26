@@ -21,7 +21,7 @@ class Variable extends Term
         return this;
     }
     
-    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
+    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set(), parent: null })
     {
         return [this.applyMapping(status.map)];
     }

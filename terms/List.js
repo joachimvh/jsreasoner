@@ -31,9 +31,9 @@ class List extends Term
         return new List(this.list.map(e => e.applyMapping(map)));
     }
     
-    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
+    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set(), parent: null})
     {
-        return [new List([].concat(...this.list.map(e => e.toSNF(status))))];
+        return [new List([].concat(...this.list.map(e => e.toSNF(Object.assign(status, {parent: this})))))];
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})

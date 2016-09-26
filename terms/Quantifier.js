@@ -26,10 +26,10 @@ class Quantifier extends Term
         throw new Error("Should be in SNF.");
     }
     
-    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set()})
+    toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set(), parent: null})
     {
         // could optimize to only copy the necessary parts
-        status = { map: new Map(status.map), changeQuant: status.changeQuant, dependencies: new Set(status.dependencies)};
+        status = { map: new Map(status.map), changeQuant: status.changeQuant, dependencies: new Set(status.dependencies), parent: status.parent };
         if (this.forAll && status.changeQuant || !this.forAll && !status.changeQuant)
             status.map.set(this.param.name, new Skolem(this.param.name, status.dependencies));
         else
