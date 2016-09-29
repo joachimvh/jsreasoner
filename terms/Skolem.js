@@ -1,5 +1,7 @@
 
 var Term = require('./Term');
+var Variable = require('./Variable');
+var _ = require('lodash');
 
 class Skolem extends Term
 {
@@ -36,6 +38,15 @@ class Skolem extends Term
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set(), parent: null})
     {
         throw new Error("Is already in SNF!");
+    }
+    
+    fromSNF ()
+    {
+        // sort dependencies to be consistent with other components that have the same dependencies
+        let order = _.sortBy([...this.dependencies], 'name').map(d => { return {var: d, universal: true}});
+        let v = new Variable(this.name);
+        order.push({var: v, universal: false});
+        return {result: v, vars: new Set(), order: order};
     }
     
     updateQuantifiers ()

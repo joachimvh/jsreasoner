@@ -17,7 +17,7 @@ class N3Parser
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
         let {result} = this.step(lexed, new Map(), new Set());
-        // result is a list (since we don't want an encapsulatin formula around the document)
+        // result is a list (since we don't want an encapsulating formula around the document)
         return [].concat(...result.map(e => e.updateQuantifiers()));
     }
 

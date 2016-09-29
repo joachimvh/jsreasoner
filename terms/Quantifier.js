@@ -38,6 +38,11 @@ class Quantifier extends Term
         return [].concat(...this.list.map(e => e.toSNF(status)));
     }
     
+    fromSNF ()
+    {
+        throw new Error("Should be in SNF.");
+    }
+    
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
         if (status.variables.has(this.param.name))

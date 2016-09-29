@@ -1,6 +1,8 @@
 
 let List = require("./List");
 let Implication = require ('./Implication');
+let Quantifier = require('./Quantifier');
+let Variable = require('./Variable');
 
 class Formula extends List
 {
@@ -16,6 +18,28 @@ class Formula extends List
         if (!(status.parent instanceof Implication))
             status = { map: status.map, changeQuant: false, dependencies: status.dependencies, parent: this};
         return [new Formula([].concat(...this.list.map(e => e.toSNF(Object.assign(status, {parent: this})))))];
+    }
+    
+    fromSNF (parent = null)
+    {
+        let vals = this.list.map(x => x.fromSNF(this));
+        // fancy (and memory efficient way) to merge sets
+        let mergedVars = this.mergeSets(vals.map(v => v.vars));
+        let mergedOrder = this.mergeOrders(vals.map(v => v.order));
+        let result = vals.map(x => x.result);
+        
+        if (parent instanceof Implication)
+            return {result: new Formula(result), vars: mergedVars, order: mergedOrder};
+            
+        // need to add all vars not part of the order
+        for (let v of mergedVars)
+            if (mergedOrder.find(x => x.var.equals(v)) === undefined)
+                result = [new Quantifier(true, new Variable(v), result)];
+            
+        for (let i = mergedOrder.length-1; i >= 0; --i)
+            result = [new Quantifier(mergedOrder[i].universal, mergedOrder[i].var, result)];
+        
+        return {result: new Formula(result), vars: [], order: []};
     }
     
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})

@@ -24,6 +24,11 @@ class Constant extends Term
         return [this];
     }
     
+    fromSNF ()
+    {
+        return {result: this, vars: new Set(), order: []};
+    }
+    
     updateQuantifiers ()
     {
         return [this];

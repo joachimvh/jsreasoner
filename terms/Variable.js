@@ -26,6 +26,12 @@ class Variable extends Term
         return [this.applyMapping(status.map)];
     }
     
+    fromSNF ()
+    {
+        // use name because else Set won't work?
+        return {result: this, vars: new Set([this.name]), order: []};
+    }
+    
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
         if (!status.variables.has(this.name))

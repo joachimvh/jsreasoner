@@ -32,6 +32,16 @@ class Triple extends Term
         return new Triple(...vals.map(x => x[0]));
     }
     
+    fromSNF (parent = null)
+    {
+        let vals = [this.subject, this.predicate, this.object].map(x => x.fromSNF(this));
+        let triple = new Triple(...vals.map(x => x.result));
+        // fancy (and memory efficient way) to merge sets
+        let mergedVars = this.mergeSets(vals.map(v => v.vars));
+        let mergedOrder = this.mergeOrders(vals.map(v => v.order));
+        return {result: triple, vars: mergedVars, order: mergedOrder};
+    }
+    
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
         let vals = [this.subject, this.predicate, this.object].map(x => x.updateQuantifiers(status));

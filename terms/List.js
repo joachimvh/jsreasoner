@@ -36,6 +36,16 @@ class List extends Term
         return [new List([].concat(...this.list.map(e => e.toSNF(Object.assign(status, {parent: this})))))];
     }
     
+    fromSNF (parent = null)
+    {
+        let vals = this.list.map(x => x.fromSNF(this));
+        let list = new List(vals.map(x => x.result));
+        // fancy (and memory efficient way) to merge sets
+        let mergedVars = this.mergeSets(vals.map(v => v.vars));
+        let mergedOrder = this.mergeOrders(vals.map(v => v.order));
+        return {result: list, vars: mergedVars, order: mergedOrder};
+    }
+    
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
         return [new List([].concat(...this.list.map(e => e.updateQuantifiers(status))))];

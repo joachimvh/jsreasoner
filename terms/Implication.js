@@ -31,6 +31,16 @@ class Implication extends Term
         return [new Implication(premise[0], conclusion[0])];
     }
     
+    fromSNF (parent = null)
+    {
+        let vals = [this.premise, this.conclusion].map(x => x.fromSNF(this));
+        let implication = new Implication(...vals.map(x => x.result));
+        // fancy (and memory efficient way) to merge sets
+        let mergedVars = this.mergeSets(vals.map(v => v.vars));
+        let mergedOrder = this.mergeOrders(vals.map(v => v.order));
+        return {result: implication, vars: mergedVars, order: mergedOrder};
+    }
+    
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0})
     {
         let premise = this.premise.updateQuantifiers(status);
