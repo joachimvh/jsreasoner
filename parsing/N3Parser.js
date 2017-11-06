@@ -16,9 +16,9 @@ class N3Parser
         this.nameIdx = 0;
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
-        let {result} = this.step(lexed, new Map(), new Set());
+        let {id} = this.step(lexed, new Map(), new Set());
         // result is a list (since we don't want an encapsulating formula around the document)
-        return [].concat(...result.map(e => e.updateQuantifiers()));
+        return [].concat(...id.list.map(e => e.updateQuantifiers()));
     }
 
     step (thingy, prefixes, variables)
@@ -40,8 +40,8 @@ class N3Parser
             // Totally complete
         {
             if (variables.has(val))
-                return { result: new T.Variable(val) };
-            return { result: new T.Constant(val) };
+                return { id: new T.Variable(val) };
+            return { id: new T.Constant(val) };
         }
     }
     
@@ -63,27 +63,32 @@ class N3Parser
             {
                 // all following statements need to be in scope of the quantifier
                 // I will be very upset with whoever puts something that can return universals/existentials in the parameter position of the quantifier
+                // or square bracket blank nodes, please don't
                 // will actually break if non-constants are used for parameters for now
                 for (let param of child.val)
                 {
-                    let p = this.step(param, prefixes, variables).result.value;
+                    let p = this.step(param, prefixes, variables).id.value;
+                    if (!p)
+                        throw new Error('Someone put something weird as a quantifier parameter: ' + param);
                     let v = new T.Variable(p);
                     variables.add(v.name);
-                    list.push({ quant: true, forAll: child.type === 'Universal', result: v});
+                    list.push({ quant: true, forAll: child.type === 'Universal', id: v}); // temporary object, will be parsed below
                 }
             }
             else
             {
                 // universal variables need to be scoped outside of the formula, existentials inside
                 // prefixes only matter if they are directly one of the child values
-                let {outerVariables: outer=[], innerVariables: inner=[], result} = this.step(child, prefixes, variables);
+                let {outerVariables: outer=[], innerVariables: inner=[], id, triples} = this.step(child, prefixes, variables);
                 newInner.push(...inner);
                 newOuter.push(...outer);
-                list.push(...result);
+                if (id)
+                    throw Error('id should be null here, it isn\'t: ' + id);
+                list.push(...triples);
             }
         }
         if (list.length === 0)
-            return {result: new T.Formula([])};
+            return {id: new T.Formula([])};
             
         for (let i = list.length-1; i >= 0; --i)
         {
@@ -92,7 +97,7 @@ class N3Parser
                 // cut off the tail of the list
                 let subList = list.splice(i+1);
                 // let the last element of the list be the new formula
-                list[i] = new T.Quantifier(list[i].forAll, list[i].result, subList);
+                list[i] = new T.Quantifier(list[i].forAll, list[i].id, subList);
             }
         }
         let result = list;
@@ -105,32 +110,34 @@ class N3Parser
                 result = [new T.Quantifier(universal, term, result)];
             newOuter = undefined;
         }
-        else
-            result = new T.Formula(result);
-        return {innerVariables: newOuter, result: result};
+        result = new T.Formula(result);
+        return {innerVariables: newOuter, id: result};
     }
     
     handleTripleData ({type, val}, prefixes, variables)
     {
         let sResult, poList;
         let newInner = [], newOuter = [];
+        let triples = [];
+        let id = null;
         if (type === 'TripleData')
         {
             let s = val[0];
             poList = val[1];
-            let {innerVariables: inner=[], outerVariables: outer=[], result: result} = this.step(s, prefixes, variables);
+            let {innerVariables: inner=[], outerVariables: outer=[], id, triples: sTriples=[]} = this.step(s, prefixes, variables);
             newInner = inner;
             newOuter = outer;
-            sResult = result;
+            sResult = id;
+            triples.push(...sTriples);
         }
         else // BlankTripleData
         {
-            poList = val[0];
+            poList = val;
             sResult = new T.Variable('b_' + this.nameIdx++);
+            id = sResult;
             newInner.push({ universal: false, term: sResult });
         }
     
-        let results = [];
         for (let po of poList)
         {
             let [p, os] = po.val;
@@ -138,72 +145,78 @@ class N3Parser
             {
                 for (let o of os)
                 {
-                    let {outerVariables: outer=[], innerVariables: inner=[], result: oResult} = this.step(o, prefixes, variables);
+                    let {outerVariables: outer=[], innerVariables: inner=[], id: oResult, triples: sTriples=[]} = this.step(o, prefixes, variables);
                     newInner.push(...inner);
                     newOuter.push(...outer);
-                    results.push(new T.Implication(sResult, oResult));
+                    triples.push(...sTriples);
+                    triples.push(new T.Implication(sResult, oResult));
                 }
             }
             else
             {
-                let {outerVariables: outer=[], innerVariables: inner=[], result: {p: pResult, os: oResults}} = this.step(po, prefixes, variables);
+                let {outerVariables: outer=[], innerVariables: inner=[], id: {p: pResult, os: oResults}, triples: sTriples=[]} = this.step(po, prefixes, variables);
                 newInner.push(...inner);
                 newOuter.push(...outer);
+                triples.push(...sTriples);
                 for (let oResult of oResults)
-                    results.push(new T.Triple(sResult, pResult, oResult));
+                  triples.push(new T.Triple(sResult, pResult, oResult));
             }
         }
-        return {outerVariables: newOuter, innerVariables: newInner, result: results};
+        return {outerVariables: newOuter, innerVariables: newInner, triples, id};
     }
     
     handlePredicateObject ({type, val}, prefixes, variables)
     {
         let [p, os] = val;
-        let {innerVariables: newInner=[], outerVariables: newOuter=[], result: pResult} = this.step(p, prefixes, variables);
+        let {innerVariables: newInner=[], outerVariables: newOuter=[], id: pResult, triples=[]} = this.step(p, prefixes, variables);
         let oResults = [];
         for (let o of os)
         {
-            let {innerVariables: inner=[], outerVariables: outer=[], result: oResult} = this.step(o, prefixes, variables);
+            let {innerVariables: inner=[], outerVariables: outer=[], id: oResult, triples: sTriples=[]} = this.step(o, prefixes, variables);
             newInner.push(...inner);
             newOuter.push(...outer);
+            triples.push(...sTriples);
             oResults.push(oResult);
         }
-        return {innerVariables: newInner, outerVariables: newOuter, result: {p: pResult, os: oResults}};
+        return {innerVariables: newInner, outerVariables: newOuter, id: {p: pResult, os: oResults}, triples};
     }
     
     handleList ({type, val}, prefixes, variables)
     {
         let newInner = [], newOuter = [];
         let list = [];
+        let triples = [];
         for (let child of val)
         {
-            let {innerVars=[], outerVars=[], result} = this.step(child, prefixes, variables);
+            let {innerVars=[], outerVars=[], id, triples: sTriples=[]} = this.step(child, prefixes, variables);
             newInner.push(...innerVars);
             newOuter.push(...outerVars);
-            list.push(result);
+            triples.push(...sTriples);
+            if (id)
+                list.push(id);
         }
-        return {innerVariables: newInner, outerVariables: newOuter}
+        return {innerVariables: newInner, outerVariables: newOuter, id: new T.List(list), triples};
     }
     
     handleVariable ({type, val}, prefixes, variables)
     {
         let result = new T.Variable(val);
-        return {outerVariables: [{ universal: true, term: result }], result: result};
+        return {outerVariables: [{ universal: true, term: result }], id: result};
     }
     
     handlePrefixedIRI ({type, val}, prefixes, variables)
     {
         let prefixIdx = val.indexOf(':');
-        var prefix = val.substring(0, prefixIdx);
+        let prefix = val.substring(0, prefixIdx);
         if (prefix === '_')
         {
             let v = new T.Variable(val);
-            return {result: v, innerVariables: [ { universal: false, term: v } ] };
+            return {id: v, innerVariables: [ { universal: false, term: v } ] };
         }
         
         if (variables.has(val))
-            return {result: new T.Variable(val)};
-        return {result: new T.Constant(val)};
+            return {id: new T.Variable(val)};
+        return {id: new T.Constant(val)};
     }
 }
 
