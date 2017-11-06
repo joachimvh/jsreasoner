@@ -1,0 +1,167 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix dc:    <http://purl.org/dc/elements/1.1/> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix rutp:  <http://rdfunit.aksw.org/data/patterns#> .
+@prefix rlog:  <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/rlog#> .
+@prefix oslc:  <http://open-services.net/ns/core#> .
+@prefix rutg:  <http://rdfunit.aksw.org/data/generators#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dsp:   <http://dublincore.org/dc-dsp#> .
+@prefix schema: <http://schema.org/> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rut:   <http://rdfunit.aksw.org/ns/core#> .
+@prefix rutr:  <http://rdfunit.aksw.org/data/results#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix spin:  <http://spinrdf.org/spin#> .
+@prefix rutt:  <http://rdfunit.aksw.org/data/tests#> .
+@prefix ruts:  <http://rdfunit.aksw.org/data/testsuite#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix e: <http://eulersharp.sourceforge.net/2003/03swap/log-rules#>.
+@prefix log: <http://www.w3.org/2000/10/swap/log#>.
+@prefix list: <http://www.w3.org/2000/10/swap/list#>.
+@prefix : <http://www.ournicecode.org#>.
+@prefix string: <http://www.w3.org/2000/10/swap/string#>.
+@prefix cs: <http://vocab.org/changeset/schema#>.
+@prefix ex: <http://www.example.com/>.
+
+{
+    ?triplesMap rr:logicalTable ?logicalTable .
+} => {
+    ?triplesMap a rr:TriplesMap .
+    ?logicalTable a rr:LogicalTable .
+} .
+
+{
+    ?triplesMap rr:subjectMap ?subjectMap .
+} => {
+    ?triplesMap a rr:TriplesMap .
+    ?subjectMap a rr:SubjectMap .
+} .
+
+{
+    ?triplesMap rr:predicateObjectMap ?poMap .
+} => {
+    ?triplesMap a rr:TriplesMap .
+    ?poMap a rr:PredicateObjectMap .
+} .
+
+{
+    ?poMap rr:predicateMap ?pMap .
+} => {
+    ?poMap a rr:PredicateObjectMap .
+    ?pMap a rr:PredicateMap .
+} .
+
+{
+    ?poMap rr:objectMap ?oMap .
+} => {
+    ?poMap a rr:PredicateObjectMap .
+} .
+
+{
+    ?refObjectMap rr:parentTriplesMap ?triplesMap .
+} => {
+    ?refObjectMap a rr:RefObjectMap .
+    ?triplesMap a rr:TriplesMap .
+} .
+
+{
+    ?map rr:graphMap ?graphMap .
+} => {
+    ?graphMap a rr:GraphMap .
+} .
+
+{
+    ?subjectMap a rr:SubjectMap .
+} => {
+    ?subjectMap a rr:TermMap .
+} .
+
+{
+    ?pMap a rr:PredicateMap .
+} => {
+    ?pMap a rr:TermMap .
+} .
+
+{
+    ?oMap a rr:ObjectMap .
+} => {
+    ?oMap a rr:TermMap .
+} .
+
+# TODO class for ObjectMap OR RefObjectMap
+
+{
+    ?map rr:subject ?subject .
+} => {
+    ?map rr:subjectMap [
+        rr:constant ?subject
+    ] .
+} .
+
+{
+    ?subjectMap rr:class ?class .
+} => {
+    ?subjectMap rr:predicateObjectMap [
+        rr:predicateMap [
+            rr:constant rdf:type
+        ] ;
+        rr:objectMap [
+            rr:constant ?class
+        ]
+    ] .
+} .
+
+{
+    ?poMap rr:predicate ?predicate .
+} => {
+    ?poMap rr:predicateMap [
+        rr:constant ?predicate
+    ] .
+} .
+
+{
+    ?poMap rr:object ?object .
+} => {
+    ?poMap rr:objectMap [
+        rr:constant ?object
+    ] .
+} .
+
+{
+    ?termmap rr:object ?graph .
+} => {
+    ?termmap rr:graphMap [
+        rr:constant ?graph
+    ] .
+} .
+
+{
+    ?termmap rr:column ?column .
+} => {
+    ?termmap rr:termType rr:Literal .
+} .
+
+{
+    ?termmap rr:language ?language .
+} => {
+    ?termmap rr:termType rr:Literal .
+} .
+
+{
+    ?termmap rr:datatype ?datatype .
+} => {
+    ?termmap rr:termType rr:Literal .
+} .
+
+{
+    ?termmap a rr:TermMap .
+    _:x e:findall (?termmap {?termmap rr:column ?column} ()).
+    _:x e:findall (?termmap {?termmap rr:language ?language} ()).
+    _:x e:findall (?termmap {?termmap rr:datatype ?datatype} ()).
+} => {
+    ?termmap rr:termType rr:IRI .
+} .

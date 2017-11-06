@@ -14,9 +14,14 @@ let fs = require('fs');
 // console.log('BACKWARD REASONING');
 // console.log(new BackwardReasoner().reason(goals, terms).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
 
+// let parser = new Parser();
+// let terms = parser.toTerms('{?everyone :says {_:x a :Unicorn}}=>{ :z :z :z }.');
+// let result = [].concat(...terms.map(t => t.toSNF()));
+// console.log(result.join('\n'));
+// result = BackParser.fromSNF(result);
+// console.log(result.join('\n'));
+
+let data = fs.readFileSync('rules.n3', 'utf8');
 let parser = new Parser();
-let terms = parser.toTerms('{?everyone :says {_:x a :Unicorn}}=>{ :z :z :z }.');
-let result = [].concat(...terms.map(t => t.toSNF()));
-console.log(result.join('\n'));
-result = BackParser.fromSNF(result);
-console.log(result.join('\n'));
+let terms = parser.toTerms(data);
+console.log(new ForwardReasoner().reason(terms).map(({data, evidence}) => [data, ...evidence].join('\n    ')).join('\n'));
