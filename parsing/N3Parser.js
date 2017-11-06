@@ -57,7 +57,7 @@ class N3Parser
             if (child.type === 'Prefix')
             {
                 let [prefix, uri] = child.val;
-                prefixes.set(prefix, uri);
+                prefixes.set(prefix, uri.substring(1, uri.length-1));
             }
             else if (child.type === 'Universal' || child.type === 'Existential')
             {
@@ -67,6 +67,7 @@ class N3Parser
                 // will actually break if non-constants are used for parameters for now
                 for (let param of child.val)
                 {
+                    // TODO: prefixes
                     let p = this.step(param, prefixes, variables).id.value;
                     if (!p)
                         throw new Error('Someone put something weird as a quantifier parameter: ' + param);
@@ -216,6 +217,9 @@ class N3Parser
         
         if (variables.has(val))
             return {id: new T.Variable(val)};
+        
+        if (prefixes.has(prefix)) // TODO: store prefixes for nicer output
+            return {id: new T.Constant(prefixes.get(prefix) + val.substring(prefixIdx+1))};
         return {id: new T.Constant(val)};
     }
 }
