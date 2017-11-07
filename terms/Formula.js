@@ -12,6 +12,10 @@ class Formula extends List
         return new Formula(this.list.map(e => e.applyMapping(map)));
     }
     
+    // Skolem/variable scope now stops at the edge of a formula, unless that formula is an implication component.
+    // Reason for this is that the meaning of predicates might influence the interpretation.
+    // E.g. {:J :denies { _:x a :Unicorn }} => { :J :is :crazy }.
+    // In this case, the x should be converted to a universal when extracting from the formula due to the meaning of the predicate.
     toSNF (status = { map: new Map(), changeQuant: false, dependencies: new Set(), parent: null})
     {
         // if the parent isn't an implication scoping needs to stay within the formula
