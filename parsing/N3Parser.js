@@ -1,5 +1,5 @@
 
-let Lexer = require('n3parser').N3Lexer;
+let Lexer = require('n3-parser.js').N3Lexer;
 let T = require('../terms/Terms');
 let _ = require('lodash');
 

@@ -65,6 +65,7 @@ class ForwardReasoner
         }
         else
         {
+            // check for every entry in knowledge if it matches/can match the premise
             for (let {data, evidence} of knowledge)
             {
                 let newMap = new Map(map);
