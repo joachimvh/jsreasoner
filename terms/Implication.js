@@ -50,7 +50,7 @@ class Implication extends Term
         return [new Implication(premise[0], conclusion[0])];
     }
     
-    solveAsLeft (map, forward, other)
+    solveDeep (map, forward, other)
     {
         if (!(other instanceof Implication))
             return false;

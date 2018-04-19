@@ -1,4 +1,6 @@
 
+
+
 class Term
 {
     equals (other) { throw new Error("Not implemented yet"); }
@@ -13,16 +15,25 @@ class Term
      */
     fromSNF (parent = null) { throw new Error("Not implemented yet"); }
     updateQuantifiers (status = {variables: new Map(), nameIdx: 0}) { throw new Error("Not implemented yet"); }
-    
-    solveAsRight (map, forward, other) { return undefined; } // probably only needed for Variable.js
-    solveAsLeft (map, forward, other) { throw new Error("Not implemented yet"); }
+
+    solveDeep (map, forward, other) { throw new Error("Not implemented yet"); }
     
     solve (map, forward, other)
     {
-        let right = other.solveAsRight(map, forward, this);
-        if (right !== undefined)
-            return right;
-        return this.solveAsLeft(map, forward, other);
+        // TODO: can't use instanceof due to require loop, will need types
+        // handle special cases for variables
+        if (other.toString()[0] === '$' && other.name)
+        {
+            if (forward || this.toString()[0] === '$' && other.name)
+                return true;
+
+            if (map.has(other.name))
+                return this.equals(map.get(other.name));
+            map.set(other.name, this);
+            return true;
+        }
+
+        return this.solveDeep(map, forward, other);
     }
     
     mergeOrders (orders)

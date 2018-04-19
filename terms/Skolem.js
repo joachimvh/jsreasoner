@@ -54,7 +54,7 @@ class Skolem extends Term
         return [this];
     }
     
-    solveAsLeft (map, forward, other)
+    solveDeep (map, forward, other)
     {
         // for backward: something exists, don't care what
         if (!forward)

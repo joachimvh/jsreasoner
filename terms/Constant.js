@@ -34,7 +34,7 @@ class Constant extends Term
         return [this];
     }
     
-    solveAsLeft (map, forward, other)
+    solveDeep (map, forward, other)
     {
         return this.equals(other);
     }

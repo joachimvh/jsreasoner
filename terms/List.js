@@ -51,7 +51,7 @@ class List extends Term
         return [new List([].concat(...this.list.map(e => e.updateQuantifiers(status))))];
     }
     
-    solveAsLeft (map, forward, other)
+    solveDeep (map, forward, other)
     {
         if (!(other instanceof List))
             return false;

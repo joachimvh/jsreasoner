@@ -39,22 +39,11 @@ class Variable extends Term
         return [new Variable(status.variables.get(this.name))];
     }
     
-    solveAsLeft (map, forward, other)
+    solveDeep (map, forward, other)
     {
-        // should already be covered on right side
-        if (!forward) return false;
-        
-        if (map.has(this.name))
-            return other.equals(map.get(this.name));
-        map.set(this.name, other);
-        return true;
-    }
-    
-    solveAsRight (map, forward, other)
-    {
-        if (forward) return true;
-        
-        // backward
+        if (!forward)
+            return true;
+
         if (map.has(this.name))
             return other.equals(map.get(this.name));
         map.set(this.name, other);

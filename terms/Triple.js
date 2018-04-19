@@ -50,7 +50,7 @@ class Triple extends Term
         return new Triple(...vals.map(x => x[0]));
     }
     
-    solveAsLeft (map, forward, other)
+    solveDeep (map, forward, other)
     {
         return other instanceof Triple
                 && this.subject.solve(map, forward, other.subject)
