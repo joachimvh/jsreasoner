@@ -3,8 +3,6 @@ let T = require('../terms/Terms');
 
 class TermParser
 {
-    constructor () {}
-    
     static fromSNF (terms)
     {
         let vals = terms.map(t => t.fromSNF());

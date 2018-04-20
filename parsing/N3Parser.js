@@ -3,39 +3,37 @@ let Lexer = require('n3-parser.js').N3Lexer;
 let T = require('../terms/Terms');
 let _ = require('lodash');
 
+// TODO: put this in context object
+let nameIdx = 0;
+
 // TODO: handle renaming of variables at some point
 class N3Parser
 {
-    constructor()
+    static toTerms (input)
     {
-        this.nameIdx = 0;
-    }
-
-    toTerms (input)
-    {
-        this.nameIdx = 0;
+        nameIdx = 0;
         let lexed = new Lexer().parse(input);
         // there should be no outer variables left since a 'Document' only returns inner
-        let {id} = this.step(lexed, new Map(), new Set());
+        let {id} = N3Parser.step(lexed, new Map(), new Set());
         // result is a list (since we don't want an encapsulating formula around the document)
         return [].concat(...id.list.map(e => e.updateQuantifiers()));
     }
 
-    step (thingy, prefixes, variables)
+    static step (thingy, prefixes, variables)
     {
         let {type, val} = thingy;
         if (type === Lexer.terms.DOCUMENT || type === Lexer.terms.FORMULA)
-            return this.handleFormula(thingy, prefixes, variables);
+            return N3Parser.handleFormula(thingy, prefixes, variables);
         else if (type === Lexer.terms.TRIPLE_DATA || type === Lexer.terms.BLANK_TRIPLE_DATA)
-            return this.handleTripleData(thingy, prefixes, variables);
+            return N3Parser.handleTripleData(thingy, prefixes, variables);
         else if (type === Lexer.terms.PREDICATE_OBJECT)
-            return this.handlePredicateObject(thingy, prefixes, variables);
+            return N3Parser.handlePredicateObject(thingy, prefixes, variables);
         else if (type === Lexer.terms.LIST)
-            return this.handleList(thingy, prefixes, variables);
+            return N3Parser.handleList(thingy, prefixes, variables);
         else if (type === Lexer.terms.VARIABLE)
-            return this.handleVariable(thingy, prefixes, variables);
+            return N3Parser.handleVariable(thingy, prefixes, variables);
         else if (type === Lexer.terms.PREFIXED_IRI)
-            return this.handlePrefixedIRI(thingy, prefixes, variables);
+            return N3Parser.handlePrefixedIRI(thingy, prefixes, variables);
         else
             // Totally complete
         {
@@ -50,7 +48,7 @@ class N3Parser
             {
                 let lit = val[0];
                 if (val[1])
-                    lit += '^^' + this.step(val[1], prefixes, variables).id.value;
+                    lit += '^^' + N3Parser.step(val[1], prefixes, variables).id.value;
                 else if (val[2])
                     lit += '@' + val[2];
                 val = lit;
@@ -59,7 +57,7 @@ class N3Parser
         }
     }
     
-    handleFormula({type, val}, prefixes, variables)
+    static handleFormula({type, val}, prefixes, variables)
     {
         let list = [];
         let newInner = [];
@@ -82,7 +80,7 @@ class N3Parser
                 for (let param of child.val)
                 {
                     // TODO: prefixes
-                    let p = this.step(param, prefixes, variables).id.value;
+                    let p = N3Parser.step(param, prefixes, variables).id.value;
                     if (!p)
                         throw new Error('Someone put something weird as a quantifier parameter: ' + param);
                     let v = new T.Variable(p);
@@ -94,7 +92,7 @@ class N3Parser
             {
                 // universal variables need to be scoped outside of the formula, existentials inside
                 // prefixes only matter if they are directly one of the child values
-                let {outerVariables: outer=[], innerVariables: inner=[], id, triples} = this.step(child, prefixes, variables);
+                let {outerVariables: outer=[], innerVariables: inner=[], id, triples} = N3Parser.step(child, prefixes, variables);
                 newInner.push(...inner);
                 newOuter.push(...outer);
                 if (id)
@@ -129,7 +127,7 @@ class N3Parser
         return {innerVariables: newOuter, id: result};
     }
     
-    handleTripleData ({type, val}, prefixes, variables)
+    static handleTripleData ({type, val}, prefixes, variables)
     {
         let sResult, poList;
         let newInner = [], newOuter = [];
@@ -139,7 +137,7 @@ class N3Parser
         {
             let s = val[0];
             poList = val[1];
-            let {innerVariables: inner=[], outerVariables: outer=[], id, triples: sTriples=[]} = this.step(s, prefixes, variables);
+            let {innerVariables: inner=[], outerVariables: outer=[], id, triples: sTriples=[]} = N3Parser.step(s, prefixes, variables);
             newInner = inner;
             newOuter = outer;
             sResult = id;
@@ -148,7 +146,7 @@ class N3Parser
         else // BlankTripleData
         {
             poList = val;
-            sResult = new T.Variable('b_' + this.nameIdx++);
+            sResult = new T.Variable('b_' + nameIdx++);
             id = sResult;
             newInner.push({ universal: false, term: sResult });
         }
@@ -160,7 +158,7 @@ class N3Parser
             {
                 for (let o of os)
                 {
-                    let {outerVariables: outer=[], innerVariables: inner=[], id: oResult, triples: sTriples=[]} = this.step(o, prefixes, variables);
+                    let {outerVariables: outer=[], innerVariables: inner=[], id: oResult, triples: sTriples=[]} = N3Parser.step(o, prefixes, variables);
                     newInner.push(...inner);
                     newOuter.push(...outer);
                     triples.push(...sTriples);
@@ -169,7 +167,7 @@ class N3Parser
             }
             else
             {
-                let {outerVariables: outer=[], innerVariables: inner=[], id: {p: pResult, os: oResults}, triples: sTriples=[]} = this.step(po, prefixes, variables);
+                let {outerVariables: outer=[], innerVariables: inner=[], id: {p: pResult, os: oResults}, triples: sTriples=[]} = N3Parser.step(po, prefixes, variables);
                 newInner.push(...inner);
                 newOuter.push(...outer);
                 triples.push(...sTriples);
@@ -180,14 +178,14 @@ class N3Parser
         return {outerVariables: newOuter, innerVariables: newInner, triples, id};
     }
     
-    handlePredicateObject ({type, val}, prefixes, variables)
+    static handlePredicateObject ({type, val}, prefixes, variables)
     {
         let [p, os] = val;
-        let {innerVariables: newInner=[], outerVariables: newOuter=[], id: pResult, triples=[]} = this.step(p, prefixes, variables);
+        let {innerVariables: newInner=[], outerVariables: newOuter=[], id: pResult, triples=[]} = N3Parser.step(p, prefixes, variables);
         let oResults = [];
         for (let o of os)
         {
-            let {innerVariables: inner=[], outerVariables: outer=[], id: oResult, triples: sTriples=[]} = this.step(o, prefixes, variables);
+            let {innerVariables: inner=[], outerVariables: outer=[], id: oResult, triples: sTriples=[]} = N3Parser.step(o, prefixes, variables);
             newInner.push(...inner);
             newOuter.push(...outer);
             triples.push(...sTriples);
@@ -196,14 +194,14 @@ class N3Parser
         return {innerVariables: newInner, outerVariables: newOuter, id: {p: pResult, os: oResults}, triples};
     }
     
-    handleList ({type, val}, prefixes, variables)
+    static handleList ({type, val}, prefixes, variables)
     {
         let newInner = [], newOuter = [];
         let list = [];
         let triples = [];
         for (let child of val)
         {
-            let {innerVars=[], outerVars=[], id, triples: sTriples=[]} = this.step(child, prefixes, variables);
+            let {innerVars=[], outerVars=[], id, triples: sTriples=[]} = N3Parser.step(child, prefixes, variables);
             newInner.push(...innerVars);
             newOuter.push(...outerVars);
             triples.push(...sTriples);
@@ -213,13 +211,13 @@ class N3Parser
         return {innerVariables: newInner, outerVariables: newOuter, id: new T.List(list), triples};
     }
     
-    handleVariable ({type, val}, prefixes, variables)
+    static handleVariable ({type, val}, prefixes, variables)
     {
         let result = new T.Variable(val);
         return {outerVariables: [{ universal: true, term: result }], id: result};
     }
     
-    handlePrefixedIRI ({type, val}, prefixes, variables)
+    static handlePrefixedIRI ({type, val}, prefixes, variables)
     {
         let prefixIdx = val.indexOf(':');
         let prefix = val.substring(0, prefixIdx);
