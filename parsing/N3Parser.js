@@ -24,23 +24,37 @@ class N3Parser
     step (thingy, prefixes, variables)
     {
         let {type, val} = thingy;
-        if (type === 'Document' || type === 'Formula')
+        if (type === Lexer.terms.DOCUMENT || type === Lexer.terms.FORMULA)
             return this.handleFormula(thingy, prefixes, variables);
-        else if (type === 'TripleData' || type === 'BlankTripleData')
+        else if (type === Lexer.terms.TRIPLE_DATA || type === Lexer.terms.BLANK_TRIPLE_DATA)
             return this.handleTripleData(thingy, prefixes, variables);
-        else if (type === 'PredicateObject')
+        else if (type === Lexer.terms.PREDICATE_OBJECT)
             return this.handlePredicateObject(thingy, prefixes, variables);
-        else if (type === 'List')
+        else if (type === Lexer.terms.LIST)
             return this.handleList(thingy, prefixes, variables);
-        else if (type === 'Variable')
+        else if (type === Lexer.terms.VARIABLE)
             return this.handleVariable(thingy, prefixes, variables);
-        else if (type === 'PrefixedIRI')
+        else if (type === Lexer.terms.PREFIXED_IRI)
             return this.handlePrefixedIRI(thingy, prefixes, variables);
         else
             // Totally complete
         {
             if (variables.has(val))
                 return { id: new T.Variable(val) };
+
+            if (type === Lexer.terms.EXPLICIT_IRI)
+                val = val.substring(1, val.length-1);
+            else if (type === Lexer.terms.BOOLEAN_LITERAL && val[0] === '@')
+                val = val.substring(1);
+            else if (type === Lexer.terms.RDF_LITERAL)
+            {
+                let lit = val[0];
+                if (val[1])
+                    lit += '^^' + this.step(val[1], prefixes, variables).id.value;
+                else if (val[2])
+                    lit += '@' + val[2];
+                val = lit;
+            }
             return { id: new T.Constant(val) };
         }
     }
