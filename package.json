@@ -1,9 +1,22 @@
 {
   "name": "jsreasoner",
   "version": "0.0.1",
-  "description": "",
+  "description": "An N3 inference engine",
+  "author": "Joachim Van Herwegen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joachimvh/jsreasoner"
+  },
   "dependencies": {
     "lodash": "^4.15.0",
     "n3-parser.js": "^0.1.0"
-  }
+  },
+  "files": [
+    "index.js",
+    "parsing/*.js",
+    "reasoning/*.js",
+    "terms/*.js"
+  ],
+  "main": "index.js"
 }
