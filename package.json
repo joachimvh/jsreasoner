@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "lodash": "^4.15.0",
-    "n3-parser.js": "^0.1.0"
+    "n3-parser.js": "^0.1.1"
   },
   "files": [
     "index.js",
