@@ -53,7 +53,7 @@ class BackwardReasoner
             {
                 let map = new Map();
                 if (goal.solve(map, false, conclusion))
-                    yield { map: map, rule: rule };
+                    yield { map: map, rule: rule, match: conclusion };
             }
         }
     }

@@ -172,7 +172,7 @@ class N3Parser
                 newOuter.push(...outer);
                 triples.push(...sTriples);
                 for (let oResult of oResults)
-                  triples.push(new T.Triple(sResult, pResult, oResult));
+                  triples.push(new T.Pattern(sResult, pResult, oResult, new T.Constant('')));
             }
         }
         return {outerVariables: newOuter, innerVariables: newInner, triples, id};

@@ -5,7 +5,7 @@ let Implication = require('./Implication');
 let List        = require('./List');
 let Quantifier  = require('./Quantifier');
 let Skolem      = require('./Skolem');
-let Triple      = require('./Triple');
+let Pattern     = require('./Pattern');
 let Variable    = require('./Variable');
 
 module.exports = {
@@ -15,6 +15,6 @@ module.exports = {
     List:        List,
     Quantifier:  Quantifier,
     Skolem:      Skolem,
-    Triple:      Triple,
+    Pattern:     Pattern,
     Variable:    Variable
 };
