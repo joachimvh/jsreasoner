@@ -63,9 +63,7 @@ class Pattern extends Term
 
     toString ()
     {
-        if (this.graph && this.graph.value.length > 0)
-            return this.subject + ' ' + this.predicate + ' ' + this.object + ' ' + this.graph + '.';
-        return this.subject + ' ' + this.predicate + ' ' + this.object + '.';
+        return this.subject + ' ' + this.predicate + ' ' + this.object + ' ' + this.graph + '.';
     }
 }
 

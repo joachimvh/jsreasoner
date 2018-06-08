@@ -22,7 +22,8 @@ class Term
     {
         // TODO: can't use instanceof due to require loop, will need types
         // handle special cases for variables
-        if (other.toString()[0] === '$' && other.name)
+        let str = other.toString();
+        if (str.length > 0 && str[0] === '$' && other.name)
         {
             if (forward || this.toString()[0] === '$' && other.name)
                 return true;

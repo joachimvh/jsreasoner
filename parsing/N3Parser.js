@@ -2,6 +2,7 @@
 let Lexer = require('n3-parser.js').N3Lexer;
 let T = require('../terms/Terms');
 let _ = require('lodash');
+let RdfString = require('rdf-string');
 
 // TODO: put this in context object
 let nameIdx = 0;
@@ -53,7 +54,7 @@ class N3Parser
                     lit += '@' + val[2];
                 val = lit;
             }
-            return { id: new T.Constant(val) };
+            return { id: new T.Constant(RdfString.stringToTerm(val)) };
         }
     }
     
@@ -172,7 +173,8 @@ class N3Parser
                 newOuter.push(...outer);
                 triples.push(...sTriples);
                 for (let oResult of oResults)
-                  triples.push(new T.Pattern(sResult, pResult, oResult, new T.Constant('')));
+                    // empty string creates default graph
+                    triples.push(new T.Pattern(sResult, pResult, oResult, new T.Constant(RdfString.stringToTerm(''))));
             }
         }
         return {outerVariables: newOuter, innerVariables: newInner, triples, id};
@@ -229,10 +231,10 @@ class N3Parser
         
         if (variables.has(val))
             return {id: new T.Variable(val)};
-        
+
         if (prefixes.has(prefix)) // TODO: store prefixes for nicer output
-            return {id: new T.Constant(prefixes.get(prefix) + val.substring(prefixIdx+1))};
-        return {id: new T.Constant(val)};
+            return {id: new T.Constant(RdfString.stringToTerm(prefixes.get(prefix) + val.substring(prefixIdx+1)))};
+        return {id: new T.Constant(RdfString.stringToTerm(val))};
     }
 }
 

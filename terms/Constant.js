@@ -1,17 +1,20 @@
 
 let Term = require('./Term');
+let RdfString = require('rdf-string');
+
 
 class Constant extends Term
 {
     constructor (value)
     {
         super();
+        // value should be RDF.js
         this.value = value;
     }
     
     equals (other)
     {
-        return other instanceof Constant && this.value === other.value;
+        return other instanceof Constant && this.value.equals(other.value);
     }
     
     applyMapping (map)
@@ -41,7 +44,7 @@ class Constant extends Term
 
     toString ()
     {
-        return '<' + this.value + '>';
+        return RdfString.termToString(this.value);
     }
 }
 
